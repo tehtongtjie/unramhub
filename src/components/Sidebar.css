@@ -1,0 +1,132 @@
+:root {
+  --sidebar-bg: #1e293b; /* Slate gelap yang elegan */
+  --sidebar-text: #94a3b8; /* Abu-abu lembut untuk teks biasa */
+  --sidebar-active: #3b82f6; /* Biru cerah untuk menu aktif */
+  --sidebar-hover: #334155; /* Warna saat menu di-hover */
+  --text-light: #ffffff;
+  --danger-color: #ef4444; /* Merah untuk tombol logout */
+}
+
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 1.5rem 1rem;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* Header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-logo {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  font-weight: 800;
+  font-size: 1.4rem;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+.sidebar-brand-text h2 {
+  font-size: 1.15rem;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-brand-text p {
+  font-size: 0.75rem;
+  margin: 2px 0 0 0;
+  color: #64748b;
+}
+
+/* Menu items */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+/* State Hover & Active */
+.menu-item:hover {
+  background-color: var(--sidebar-hover);
+  color: var(--text-light);
+}
+
+.menu-item.active {
+  background-color: var(--sidebar-active);
+  color: var(--text-light);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+/* Footer & Logout */
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1rem;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}

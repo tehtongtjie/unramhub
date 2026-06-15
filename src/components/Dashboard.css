@@ -1,0 +1,319 @@
+/* ==========================================================================
+   RESET & CONFIG LAYOUT UTAMA (Anti Bocor Kanan)
+   ========================================================================== */
+.dashboard-layout {
+  display: flex;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.main-content {
+  flex: 1; /* Mengambil sisa layar secara otomatis di kanan sidebar */
+  margin-left: 260px; /* Lebar penahan agar konten tidak tertutup sidebar */
+  min-width: 0; /* Pengunci flexbox krusial agar komponen tidak pecah lebar */
+  padding: 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   HEADER UTAMA
+   ========================================================================== */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  gap: 1rem;
+}
+
+.header-title h2 {
+  font-size: 1.75rem;
+  color: #0f172a;
+  margin: 0;
+  font-weight: 700;
+}
+
+.header-title p {
+  margin: 6px 0 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.refresh-btn {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+/* ==========================================================================
+   STATS CARD GRID (4 Kolom Sempurna)
+   ========================================================================== */
+.stats-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  box-sizing: border-box;
+}
+
+.stat-card {
+  background-color: #ffffff;
+  padding: 1.75rem 1.25rem;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  border-left: 5px solid #cbd5e1;
+  box-sizing: border-box;
+}
+
+.stat-card h3 {
+  font-size: 2.25rem;
+  margin: 0;
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.stat-card p {
+  margin: 6px 0 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stat-card.total {
+  border-left-color: #64748b;
+}
+.stat-card.pending {
+  border-left-color: #f59e0b;
+}
+.stat-card.processing {
+  border-left-color: #3b82f6;
+}
+.stat-card.completed {
+  border-left-color: #10b981;
+}
+
+/* ==========================================================================
+   TABS FILTER KATEGORI (Gaya Kapsul Modern)
+   ========================================================================== */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  width: 100%;
+}
+
+/* Menghilangkan scrollbar jelek di area tab filter */
+.filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.tab-btn.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+}
+
+/* ==========================================================================
+   PANEL KONTEN & TABEL UTAMA
+   ========================================================================== */
+.content-panel {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 1.75rem;
+  box-sizing: border-box;
+}
+
+.panel-header {
+  margin-bottom: 1rem;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.description-text {
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.placeholder-box {
+  background-color: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #475569;
+}
+
+/* Pengunci Responsif Tabel */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.table th {
+  background-color: #f8fafc;
+  color: #475569;
+  padding: 14px 16px;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.table tr:hover td {
+  background-color: #f8fafc;
+}
+
+.font-medium {
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.category-text {
+  text-transform: capitalize;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   BADGES & TOMBOL KOMPONEN
+   ========================================================================== */
+.badge {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.action-btn {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.action-btn-secondary {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.action-btn-secondary:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Status Kondisi Massa */
+.status-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+}
+
+.loading-skeleton {
+  text-align: center;
+  padding: 3rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   RESPONSIVE DEVICE BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
