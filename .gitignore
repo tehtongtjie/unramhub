@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+.DS_Store
+/captures
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Log
+*.log
+
+# Keamanan (Opsional tapi disarankan)
+*.keystore
+*.jks
