@@ -3,8 +3,6 @@ import { supabase } from "../lib/supabase";
 import Sidebar from "./Sidebar";
 import "./Dashboard.css";
 
-// Import sub-komponen halaman utama & kontrol data
-// SESUDAH
 import Overview from "./dashboard/Overview";
 import ReportsPanel from "./dashboard/ReportsPanel";
 import PetugasPanel from "./dashboard/PetugasPanel";

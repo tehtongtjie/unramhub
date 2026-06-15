@@ -25,19 +25,19 @@ export default function SettingsPanel() {
     try {
       setLoading(true);
 
-      // Update pembatasan ukuran file upload bukti foto
-      await supabase
-        .from("system_settings")
-        .update({ value: String(maxSize) })
-        .eq("key", "max_upload_size_mb");
+      // JIKA DI MASA DEPAN TAKTIK RPC / MOBILE VALIDATION SUDAH SIAP, AKTIFKAN KEMBALI KODE INI:
+      // await supabase
+      //   .from("system_settings")
+      //   .update({ value: String(maxSize) })
+      //   .eq("key", "max_upload_size_mb");
 
-      // Update status operasional mode maintenance aplikasi
+      // Update status operasional mode maintenance aplikasi (Hanya ini yang dieksekusi karena sudah berfungsi)
       await supabase
         .from("system_settings")
         .update({ value: String(isMaintenance) })
         .eq("key", "maintenance_mode");
 
-      alert("Konfigurasi parameter sistem berhasil disimpan!");
+      alert("Konfigurasi parameter sistem yang aktif berhasil disimpan!");
     } catch (err) {
       console.error(err);
       alert("Gagal merubah konfigurasi.");
@@ -55,24 +55,56 @@ export default function SettingsPanel() {
 
       <div style={{ maxWidth: "500px", display: "flex", flexDirection: "column", gap: "1.5rem", marginTop: "1.5rem" }}>
         
-        {/* Opsi 1: Batas File Bukti */}
-        <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-          <label style={{ display: "block", fontWeight: "600", fontSize: "0.95rem", marginBottom: "6px" }}>
+        {/* Opsi 1: Batas File Bukti (DI-DISABLE KARENA BELUM TERHUBUNG KE STRUKTUR BUCKET) */}
+        <div style={{ 
+          backgroundColor: "#f1f5f9", 
+          padding: "16px", 
+          borderRadius: "8px", 
+          border: "1px solid #cbd5e1",
+          opacity: 0.65,
+          position: "relative"
+        }}>
+          {/* Badge Indikator Belum Berfungsi */}
+          <span style={{
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            backgroundColor: "#94a3b8",
+            color: "#fff",
+            fontSize: "11px",
+            fontWeight: "600",
+            padding: "2px 8px",
+            borderRadius: "4px"
+          }}>
+            Belum Berfungsi
+          </span>
+
+          <label style={{ display: "block", fontWeight: "600", fontSize: "0.95rem", marginBottom: "6px", color: "#64748b" }}>
             Batas Maksimal Upload File Bukti
           </label>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <input 
               type="number" 
               value={maxSize} 
-              onChange={(e) => setMaxSize(e.target.value)}
-              style={{ width: "80px", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1" }} 
+              disabled={true} // Dikunci agar tidak membingungkan Admin
+              style={{ 
+                width: "80px", 
+                padding: "8px", 
+                borderRadius: "6px", 
+                border: "1px solid #cbd5e1", 
+                backgroundColor: "#e2e8f0", 
+                color: "#64748b",
+                cursor: "not-allowed" 
+              }} 
             />
-            <span style={{ fontSize: "0.9rem", color: "#475569", fontWeight: "500" }}>Megabytes (MB)</span>
+            <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: "500" }}>Megabytes (MB)</span>
           </div>
-          <p style={{ margin: "6px 0 0 0", fontSize: "0.8rem", color: "#64748b" }}>Aplikasi mobile pelapor otomatis memblokir file jika mendeteksi kompresi di atas angka ini.</p>
+          <p style={{ margin: "6px 0 0 0", fontSize: "0.8rem", color: "#94a3b8" }}>
+            Fitur ini memerlukan konfigurasi RPC Storage Bucket di Supabase agar dapat membatasi ukuran berkas secara riil.
+          </p>
         </div>
 
-        {/* Opsi 2: Saklar Maintenance Switch */}
+        {/* Opsi 2: Saklar Maintenance Switch (TETAP AKTIF BERFUNGSI) */}
         <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
