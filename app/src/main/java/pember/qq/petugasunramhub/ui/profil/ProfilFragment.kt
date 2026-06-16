@@ -8,13 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import pember.qq.petugasunramhub.databinding.FragmentProfilBinding
+// IMPORT INI YANG HARUS DISESUAIKAN
+import pember.qq.petugasunramhub.databinding.PetugasFragmentProfilBinding
 import pember.qq.petugasunramhub.ui.login.LoginActivity
 import pember.qq.petugasunramhub.utils.SessionManager
 
 class ProfilFragment : Fragment() {
 
-    private var _binding: FragmentProfilBinding? = null
+    // UBAH TIPE DATA BINDING
+    private var _binding: PetugasFragmentProfilBinding? = null
     private val binding get() = _binding!!
 
     private val sessionManager by lazy { SessionManager(requireContext()) }
@@ -24,7 +26,8 @@ class ProfilFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentProfilBinding.inflate(inflater, container, false)
+        // INFLATE DENGAN CLASS YANG BENAR
+        _binding = PetugasFragmentProfilBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -44,13 +47,11 @@ class ProfilFragment : Fragment() {
     }
 
     private fun setupActionListeners() {
-        // Listener Tombol Keluar Aplikasi
         binding.btnProfilLogout.setOnClickListener {
             sessionManager.logout()
             navigateToLogin()
         }
 
-        // Listener Baris "Tentang UnramHUB" (Langsung panggil ID dari XML baru)
         binding.itemMenuTentang.setOnClickListener {
             Toast.makeText(
                 requireContext(),
@@ -59,7 +60,6 @@ class ProfilFragment : Fragment() {
             ).show()
         }
 
-        // Listener Baris "Hubungi Admin" (Langsung panggil ID dari XML baru)
         binding.itemMenuHubungi.setOnClickListener {
             hubungiAdminUniversitas()
         }
@@ -67,7 +67,7 @@ class ProfilFragment : Fragment() {
 
     private fun hubungiAdminUniversitas() {
         try {
-            val nomorAdmin = "081234567890" // Sesuaikan nomor admin Unram nanti di sini
+            val nomorAdmin = "081234567890"
             val intent = Intent(Intent.ACTION_DIAL).apply {
                 data = Uri.parse("tel:$nomorAdmin")
             }

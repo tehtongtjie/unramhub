@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 import pember.qq.petugasunramhub.data.network.RetrofitClient
 import pember.qq.petugasunramhub.data.repository.StorageRepository
 import pember.qq.petugasunramhub.data.repository.TaskRepository
-import pember.qq.petugasunramhub.databinding.ActivityDetailLaporanBinding
+import pember.qq.petugasunramhub.databinding.PetugasActivityDetailLaporanBinding
 import pember.qq.petugasunramhub.utils.SessionManager
 import java.io.File
 import java.io.FileOutputStream
@@ -28,7 +28,7 @@ import java.io.IOException
 
 class DetailLaporanActivity : AppCompatActivity() {
 
-    private val binding by lazy { ActivityDetailLaporanBinding.inflate(layoutInflater) }
+    private val binding by lazy { PetugasActivityDetailLaporanBinding.inflate(layoutInflater) }
     private val sessionManager by lazy { SessionManager(this) }
     private val taskRepository by lazy { TaskRepository() }
     private val storageRepository by lazy { StorageRepository() }
