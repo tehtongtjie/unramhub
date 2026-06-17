@@ -5,10 +5,10 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import pember.qq.petugasunramhub.ui.beranda.BerandaFragment
+//import pember.qq.petugasunramhub.ui.beranda.BerandaFragment
 import pember.qq.petugasunramhub.ui.login.LoginActivity
-import pember.qq.petugasunramhub.ui.profil.ProfilFragment
-import pember.qq.petugasunramhub.ui.tugas.TugasFragment
+//import pember.qq.petugasunramhub.ui.profil.ProfilFragment
+//import pember.qq.petugasunramhub.ui.tugas.TugasFragment
 import pember.qq.petugasunramhub.utils.SessionManager
 
 class MainActivity : AppCompatActivity() {
@@ -25,13 +25,13 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        loadFragment(BerandaFragment())
+//        loadFragment(BerandaFragment())
 
         findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_beranda -> loadFragment(BerandaFragment())
-                R.id.nav_tugas   -> loadFragment(TugasFragment())
-                R.id.nav_profil  -> loadFragment(ProfilFragment())
+//                R.id.nav_beranda -> loadFragment(BerandaFragment())
+//                R.id.nav_tugas   -> loadFragment(TugasFragment())
+//                R.id.nav_profil  -> loadFragment(ProfilFragment())
             }
             true
         }
