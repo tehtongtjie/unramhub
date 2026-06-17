@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnLaporSekarang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lapor Sekarang" />
+
+        <Button
+            android:id="@+id/btnPanic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Panic Button"
+            android:backgroundTint="#FF0000" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kategori Laporan"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/menuKekerasan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kekerasan/Pelecehan" />
+
+        <Button
+            android:id="@+id/menuFasilitas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kerusakan Fasilitas" />
+
+        <Button
+            android:id="@+id/menuBencana"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bencana/Darurat" />
+
+        <Button
+            android:id="@+id/menuBarang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Barang Hilang/Temuan" />
+
+        <Button
+            android:id="@+id/menuLainnya"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lainnya" />
+
+        <Button
+            android:id="@+id/btnDetailProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Detail Progress" />
+
+    </LinearLayout>
+</ScrollView>

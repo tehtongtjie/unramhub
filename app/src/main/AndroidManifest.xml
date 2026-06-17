@@ -27,6 +27,8 @@
 
         <activity android:name=".MainActivity" />
         <activity android:name=".ui.tugas.DetailLaporanActivity" />
+        <activity android:name=".ui.home.Civitas_Home" />
+        <activity android:name=".ui.home.FormLaporanAnonimActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
