@@ -18,6 +18,20 @@ class SessionManager(context: Context) {
         }
     }
 
+    fun getUser(): User? {
+        val id = prefs.getLong("user_id", -1)
+        if (id == -1L) return null
+        
+        return User(
+            id = id,
+            nimNip = prefs.getString("nim_nip", "") ?: "",
+            name = prefs.getString("name", "") ?: "",
+            email = prefs.getString("email", "") ?: "",
+            role = prefs.getString("role", "") ?: "",
+            isActive = true // Default true karena session tersimpan
+        )
+    }
+
     fun getUserId(): Long = prefs.getLong("user_id", -1)
     fun getName(): String? = prefs.getString("name", null)
     fun getRole(): String? = prefs.getString("role", null)

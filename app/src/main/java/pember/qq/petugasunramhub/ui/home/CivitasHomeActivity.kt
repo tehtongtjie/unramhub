@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import pember.qq.petugasunramhub.R
 import pember.qq.petugasunramhub.databinding.CivitasHomeBinding
+import pember.qq.petugasunramhub.utils.SessionManager // Pastikan ini di-import
 
 class CivitasHomeActivity : AppCompatActivity() {
     private lateinit var binding: CivitasHomeBinding
+    private lateinit var sessionManager: SessionManager // Tambahkan properti sessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,9 +20,33 @@ class CivitasHomeActivity : AppCompatActivity() {
         binding = CivitasHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Inisialisasi SessionManager
+        sessionManager = SessionManager(this)
+
+        // Panggil fungsi untuk menampilkan data user
+        displayUserProfile()
+
         setupListeners()
         setupCategoriesRecyclerView()
         setupLostItemsRecyclerView()
+    }
+
+    private fun displayUserProfile() {
+        // Ambil data user yang sedang aktif dari SessionManager
+        val currentUser = sessionManager.getUser()
+
+        if (currentUser != null) {
+            // Set nama dan NIM/NIP ke TextView sesuai id di civitas_home.xml
+            binding.tvCivitasUserName.text = currentUser.name
+            binding.tvCivitasUserNim.text = currentUser.nimNip
+        } else {
+            // Antisipasi jika data sesi kosong (langsung tendang balik ke Login)
+            val intent = Intent(this, pember.qq.petugasunramhub.ui.login.LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun setupListeners() {
@@ -58,14 +84,11 @@ class CivitasHomeActivity : AppCompatActivity() {
 
         binding.rvCivitasCategories.adapter = CivitasCategoryAdapter(dummyCategories) { category ->
             Toast.makeText(this, "Membuat laporan: ${category.label.replace("\n", " ")}", Toast.LENGTH_SHORT).show()
-            // DI SINI: Nanti bisa diarahkan ke halaman pembuatan laporan sesuai kategori yang dipilih
         }
     }
 
     private fun setupLostItemsRecyclerView() {
-        // Data Dummy Barang Hilang sesuai gambar MainMenu.png (Kunci Motor Honda Vario)
-        // Kita gunakan icon launcher sebagai gambar sementara agar tidak error saat dicoba pertama kali.
-        // Silakan ganti R.mipmap.ic_launcher dengan drawable gambar kunci aslimu nanti.
+        // Data Dummy Barang Hilang
         val dummyLostItems = listOf(
             CivitasLostItem(
                 id = 1,
@@ -96,7 +119,6 @@ class CivitasHomeActivity : AppCompatActivity() {
 
         binding.rvCivitasLostItems.adapter = CivitasLostItemAdapter(dummyLostItems) { item ->
             Toast.makeText(this, "Melihat detail barang: ${item.title}", Toast.LENGTH_SHORT).show()
-            // DI SINI: Nanti bisa diarahkan ke halaman detail barang hilang/temuan
         }
     }
 }

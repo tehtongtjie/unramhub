@@ -8,29 +8,32 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
-
-    private val httpClient = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val request = chain.request().newBuilder()
-                .addHeader("apikey", BuildConfig.SUPABASE_KEY)
-                .addHeader("Authorization", "Bearer ${BuildConfig.SUPABASE_KEY}")
-                .addHeader("Content-Type", "application/json")
-                .build()
-            chain.proceed(request)
-        }
-        .addInterceptor(loggingInterceptor)
-        .build()
-
-    private val baseUrl: String
-        get() {
-            val url = BuildConfig.SUPABASE_URL
-            return if (url.endsWith("/")) url else "$url/"
-        }
-
     val instance: SupabaseApi by lazy {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+
+        val httpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("apikey", BuildConfig.SUPABASE_KEY)
+                    .addHeader("Authorization", "Bearer ${BuildConfig.SUPABASE_KEY}")
+                    .addHeader("Content-Type", "application/json")
+                    .build()
+                chain.proceed(request)
+            }
+            .addInterceptor(loggingInterceptor)
+            .build()
+
+        val rawUrl = BuildConfig.SUPABASE_URL
+        val baseUrl = if (rawUrl.isNullOrBlank() || rawUrl == "null") {
+            "https://placeholder.supabase.co/"
+        } else if (rawUrl.endsWith("/")) {
+            rawUrl
+        } else {
+            "$rawUrl/"
+        }
+
         Retrofit.Builder()
             .baseUrl("${baseUrl}rest/v1/")
             .client(httpClient)
