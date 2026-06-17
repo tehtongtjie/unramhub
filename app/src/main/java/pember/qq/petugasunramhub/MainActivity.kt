@@ -25,13 +25,9 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-//        loadFragment(BerandaFragment())
-
         findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
             when (item.itemId) {
-//                R.id.nav_beranda -> loadFragment(BerandaFragment())
-//                R.id.nav_tugas   -> loadFragment(TugasFragment())
-//                R.id.nav_profil  -> loadFragment(ProfilFragment())
+
             }
             true
         }
