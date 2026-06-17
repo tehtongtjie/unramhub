@@ -24,10 +24,18 @@ object RetrofitClient {
         .addInterceptor(loggingInterceptor)
         .build()
 
-    val instance: SupabaseApi = Retrofit.Builder()
-        .baseUrl("${BuildConfig.SUPABASE_URL}/rest/v1/")
-        .client(httpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(SupabaseApi::class.java)
+    private val baseUrl: String
+        get() {
+            val url = BuildConfig.SUPABASE_URL
+            return if (url.endsWith("/")) url else "$url/"
+        }
+
+    val instance: SupabaseApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("${baseUrl}rest/v1/")
+            .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SupabaseApi::class.java)
+    }
 }

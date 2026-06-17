@@ -6,7 +6,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import pember.qq.petugasunramhub.MainActivity
 import pember.qq.petugasunramhub.databinding.ActivityLoginBinding
 import pember.qq.petugasunramhub.utils.SessionManager
 
@@ -97,7 +96,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
-        val intent = Intent(this, MainActivity::class.java).apply {
+        // Ubah MainActivity menjadi CivitasHomeActivity
+        val intent = Intent(this, pember.qq.petugasunramhub.ui.home.CivitasHomeActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)

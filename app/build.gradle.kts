@@ -22,9 +22,15 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val props = Properties()
-        props.load(rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "SUPABASE_URL", "\"${props["supabase.url"]}\"")
-        buildConfigField("String", "SUPABASE_KEY", "\"${props["supabase.key"]}\"")
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { props.load(it) }
+        }
+        val supabaseUrl = props.getProperty("supabase.url") ?: "https://your-project.supabase.co"
+        val supabaseKey = props.getProperty("supabase.key") ?: "your-anon-key"
+        
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"$supabaseKey\"")
     }
 
     buildTypes {

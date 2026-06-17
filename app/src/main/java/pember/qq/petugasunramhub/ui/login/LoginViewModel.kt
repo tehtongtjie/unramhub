@@ -39,8 +39,8 @@ class LoginViewModel : ViewModel() {
                         _loginState.value = LoginState.Error(throwable.message ?: "Login gagal. Silakan coba lagi.")
                     }
                 )
-            } catch (e: Exception) {
-                // Antisipasi pertahanan jika repository melempar exception tak terduga ke coroutine
+            } catch (e: Throwable) {
+                // Menangkap Throwable (termasuk ExceptionInInitializerError) untuk mencegah crash jika konfigurasi salah
                 _loginState.value = LoginState.Error(e.message ?: "Terjadi kesalahan sistem")
             }
         }

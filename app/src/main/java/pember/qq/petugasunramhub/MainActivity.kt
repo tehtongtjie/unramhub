@@ -21,15 +21,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
-        }
-
-        setContentView(R.layout.activity_main)
-
-        findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
-            when (item.itemId) {
-
-            }
-            true
+        } else {
+            // Jika sudah login, langsung arahkan ke CivitasHomeActivity
+            startActivity(Intent(this, pember.qq.petugasunramhub.ui.home.CivitasHomeActivity::class.java))
+            finish()
+            return
         }
     }
 

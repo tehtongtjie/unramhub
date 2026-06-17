@@ -1,5 +1,7 @@
 package pember.qq.petugasunramhub.data.repository
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -11,20 +13,17 @@ class StorageRepository {
 
     private val client = OkHttpClient()
 
-    suspend fun uploadFoto(file: File, reportId: Long): Result<String> {
-        return try {
+    suspend fun uploadFoto(file: File, reportId: Long): Result<String> = withContext(Dispatchers.IO) {
+        try {
             // Cek ukuran max 2MB
             val maxSize = 2 * 1024 * 1024 // 2MB
             if (file.length() > maxSize) {
-                return Result.failure(Exception("Ukuran foto melebihi 2MB"))
+                return@withContext Result.failure(Exception("Ukuran foto melebihi 2MB"))
             }
 
             val fileName = "bukti_${reportId}_${System.currentTimeMillis()}.jpg"
             val url = "${BuildConfig.SUPABASE_URL}/storage/v1/object/task-evidence/$fileName"
-            android.util.Log.d("StorageRepo", "Uploading to URL: $url")
-            android.util.Log.d("StorageRepo", "File size: ${file.length()} bytes")
-            android.util.Log.d("StorageRepo", "File exists: ${file.exists()}")
-
+            
             val body = file.readBytes().toRequestBody("image/jpeg".toMediaType())
             val request = Request.Builder()
                 .url(url)
@@ -34,15 +33,13 @@ class StorageRepository {
                 .build()
 
             val response = client.newCall(request).execute()
-            android.util.Log.d("StorageRepo", "Response code: ${response.code}")
-            android.util.Log.d("StorageRepo", "Response body: ${response.body?.string()}")
             if (response.isSuccessful) {
                 val publicUrl = "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/task-evidence/$fileName"
                 Result.success(publicUrl)
             } else {
                 Result.failure(Exception("Upload gagal: ${response.code}"))
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Result.failure(e)
         }
     }

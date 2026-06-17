@@ -16,7 +16,7 @@ class AuthRepository {
             } else {
                 Result.success(users.first())
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Result.failure(Exception("Gagal terhubung: ${e.message}"))
         }
     }
