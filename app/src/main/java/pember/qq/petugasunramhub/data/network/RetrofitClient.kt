@@ -9,37 +9,62 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
 
     private val httpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                // Mengambil API Key dari BuildConfig secara aman
-                val key = try { BuildConfig.SUPABASE_KEY } catch (e: Throwable) { "" }
-                val request = chain.request().newBuilder()
-                    .addHeader("apikey", key)
-                    .addHeader("Authorization", "Bearer $key")
-                    .addHeader("Content-Type", "application/json")
-                    .build()
-                chain.proceed(request)
+        val builder = OkHttpClient.Builder()
+        
+        // Add Logging Interceptor safely
+        try {
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            builder.addInterceptor(logging)
+        } catch (e: Throwable) {
+            android.util.Log.e("RetrofitClient", "Failed to add logging interceptor", e)
+        }
+
+        builder.addInterceptor { chain ->
+            // Mengambil API Key secara lebih aman
+            val key = try {
+                BuildConfig.SUPABASE_KEY
+            } catch (e: Throwable) {
+                android.util.Log.e("RetrofitClient", "Failed to access SUPABASE_KEY", e)
+                ""
             }
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
+            
+            val request = chain.request().newBuilder()
+                .addHeader("apikey", key)
+                .addHeader("Authorization", "Bearer $key")
+                .addHeader("Content-Type", "application/json")
+                .build()
+            chain.proceed(request)
+        }
+        
+        builder.build()
     }
 
     val instance: SupabaseApi by lazy {
-        // Mengambil Base URL dan memastikan diakhiri dengan slash agar Retrofit tidak crash
-        val rawUrl = try { BuildConfig.SUPABASE_URL } catch (e: Throwable) { "" }
+        val rawUrl = try {
+            BuildConfig.SUPABASE_URL
+        } catch (e: Throwable) {
+            android.util.Log.e("RetrofitClient", "Failed to access SUPABASE_URL", e)
+            ""
+        }
+        
         val baseUrl = when {
             rawUrl.isNullOrBlank() || rawUrl == "null" -> "https://placeholder.supabase.co/"
             rawUrl.endsWith("/") -> rawUrl
             else -> "$rawUrl/"
         }
 
-        Retrofit.Builder()
-            .baseUrl("${baseUrl}rest/v1/")
-            .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(SupabaseApi::class.java)
+        try {
+            Retrofit.Builder()
+                .baseUrl("${baseUrl}rest/v1/")
+                .client(httpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(SupabaseApi::class.java)
+        } catch (e: Throwable) {
+            android.util.Log.e("RetrofitClient", "Failed to create SupabaseApi", e)
+            // Fallback empty implementation or rethrow as a clearer exception
+            throw RuntimeException("Retrofit initialization failed: ${e.message}", e)
+        }
     }
 }

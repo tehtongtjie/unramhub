@@ -7,7 +7,14 @@ class AuthRepository {
 
     suspend fun login(nimNip: String, password: String): Result<User> {
         return try {
-            val users = RetrofitClient.instance.login(
+            val api = try {
+                RetrofitClient.instance
+            } catch (e: Throwable) {
+                android.util.Log.e("AuthRepository", "RetrofitClient initialization failed", e)
+                return Result.failure(Exception("Gagal inisialisasi layanan data: ${e.message}"))
+            }
+
+            val users = api.login(
                 nimNip = "eq.$nimNip",
                 password = "eq.$password"
             )

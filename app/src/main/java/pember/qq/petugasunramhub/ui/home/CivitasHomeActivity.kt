@@ -87,25 +87,35 @@ class CivitasHomeActivity : AppCompatActivity() {
     }
 
     private fun showReportingTypeDialog(category: CivitasCategory) {
-        val options = arrayOf("Anonim", "User Biasa")
+        val options = arrayOf("Laporkan sebagai Anonim", "Laporkan sebagai User Biasa")
         val cleanCategoryName = category.label.replace("\n", " ")
 
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Pilih Metode Pelaporan")
-            .setMessage("Kategori: $cleanCategoryName")
-            .setItems(options) { dialog, which ->
-                val intent = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
-                    putExtra("CATEGORY_ID", category.id)
-                    putExtra("CATEGORY_NAME", cleanCategoryName)
-                    putExtra("IS_ANONYMOUS", which == 0)
-                }
-                startActivity(intent)
-                dialog.dismiss()
+        // Pakai AppCompat AlertDialog yang tahan banting
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+
+        // Gabungin info kategori ke Title, JANGAN pakai .setMessage()
+        builder.setTitle("Pilih Metode Pelaporan\n(Kategori: $cleanCategoryName)")
+
+        // setItems dijamin muncul sekarang
+        builder.setItems(options) { dialog, which ->
+            // Siapkan intent menuju form laporan yang ada di folder ui.form
+            val intentKeForm = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
+                putExtra("CATEGORY_ID", category.id)
+                putExtra("CATEGORY_NAME", cleanCategoryName)
+
+                // index 0 = Anonim (true), index 1 = User Biasa (false)
+                putExtra("EXTRA_IS_ANONYMOUS", which == 0)
             }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+
+            startActivity(intentKeForm)
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Batal") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.create().show()
     }
 
     private fun setupLostItemsRecyclerView() {
