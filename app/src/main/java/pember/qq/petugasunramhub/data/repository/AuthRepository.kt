@@ -17,7 +17,8 @@ class AuthRepository {
                 Result.success(users.first())
             }
         } catch (e: Throwable) {
-            Result.failure(Exception("Gagal terhubung: ${e.message}"))
+            android.util.Log.e("AuthRepository", "Error during login", e)
+            Result.failure(Exception("Gagal terhubung: ${e.localizedMessage ?: e.javaClass.simpleName}"))
         }
     }
 }

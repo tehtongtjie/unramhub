@@ -58,7 +58,6 @@ class CivitasHomeActivity : AppCompatActivity() {
         // Banner Pelaporan Utama
         binding.btnCivitasLaporBanner.setOnClickListener {
             Toast.makeText(this, "Mengarahkan ke Formulir Pelaporan PPKS", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, FormLaporanAnonimActivity::class.java)
             startActivity(intent)
         }
 
@@ -83,8 +82,39 @@ class CivitasHomeActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         binding.rvCivitasCategories.adapter = CivitasCategoryAdapter(dummyCategories) { category ->
-            Toast.makeText(this, "Membuat laporan: ${category.label.replace("\n", " ")}", Toast.LENGTH_SHORT).show()
+            // Panggil fungsi pop-up dialog di sini
+            showReportingTypeDialog(category)
         }
+    }
+
+    private fun showReportingTypeDialog(category: CivitasCategory) {
+        val options = arrayOf("Laporkan sebagai Anonim", "Laporkan sebagai User Biasa")
+        val cleanCategoryName = category.label.replace("\n", " ")
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Pilih Metode Pelaporan")
+            .setMessage("Kategori: $cleanCategoryName") // Menggunakan setMessage, bukan setSubtitle
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> {
+                        // Opsi 1: Anonim
+                        Toast.makeText(this, "Melapor Anonim untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
+                        startActivity(intent)
+                    }
+                    1 -> {
+                        // Opsi 2: User Biasa
+                        Toast.makeText(this, "Melapor sebagai User Biasa untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
+                        // DI SINI: Nanti bisa diarahkan ke Form Laporan Biasa (jika ada activity berbeda)
+                        // Untuk sementara kita arahkan ke FormLaporanAnonimActivity dengan flag khusus
+                        startActivity(intent)
+                    }
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun setupLostItemsRecyclerView() {

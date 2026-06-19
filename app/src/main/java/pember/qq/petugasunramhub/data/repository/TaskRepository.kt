@@ -36,9 +36,9 @@ class TaskRepository {
             }
 
             Result.success(Unit)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             android.util.Log.e("TaskRepo", "Gagal update status: ${e.message}", e)
-            Result.failure(e)
+            Result.failure(Exception(e.message ?: "Gagal update status"))
         }
     }
 }
