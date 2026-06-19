@@ -58,7 +58,6 @@ class CivitasHomeActivity : AppCompatActivity() {
         // Banner Pelaporan Utama
         binding.btnCivitasLaporBanner.setOnClickListener {
             Toast.makeText(this, "Mengarahkan ke Formulir Pelaporan PPKS", Toast.LENGTH_SHORT).show()
-            startActivity(intent)
         }
 
         // Laporan Sedang Ditinjau (Progress)
@@ -88,33 +87,33 @@ class CivitasHomeActivity : AppCompatActivity() {
     }
 
     private fun showReportingTypeDialog(category: CivitasCategory) {
-        val options = arrayOf("Laporkan sebagai Anonim", "Laporkan sebagai User Biasa")
+        val options = arrayOf("Anonim", "User Biasa")
         val cleanCategoryName = category.label.replace("\n", " ")
 
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Pilih Metode Pelaporan")
-            .setMessage("Kategori: $cleanCategoryName") // Menggunakan setMessage, bukan setSubtitle
-            .setItems(options) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        // Opsi 1: Anonim
-                        Toast.makeText(this, "Melapor Anonim untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
-                        startActivity(intent)
-                    }
-                    1 -> {
-                        // Opsi 2: User Biasa
-                        Toast.makeText(this, "Melapor sebagai User Biasa untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
-                        // DI SINI: Nanti bisa diarahkan ke Form Laporan Biasa (jika ada activity berbeda)
-                        // Untuk sementara kita arahkan ke FormLaporanAnonimActivity dengan flag khusus
-                        startActivity(intent)
-                    }
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+
+        // Kita gabungin info kategori ke Title biar area konten utama nggak konflik
+        builder.setTitle("Pilih jenis pelapor disini\n(Kategori: $cleanCategoryName)")
+
+        // Jangan pakai builder.setMessage() di sini karena bakal menimpa daftar pilihan di bawah!
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> {
+                    Toast.makeText(this, "Melapor sebagai Anonim untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
                 }
-                dialog.dismiss()
+                1 -> {
+                    Toast.makeText(this, "Melapor sebagai User Biasa untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
+                }
             }
-            .setNegativeButton("Batal") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Batal") { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun setupLostItemsRecyclerView() {
