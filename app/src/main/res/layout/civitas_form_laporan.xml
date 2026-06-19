@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <Spinner
+            android:id="@+id/spinJenisPelapor"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:paddingHorizontal="12dp" />
+
+        <Spinner
+            android:id="@+id/spinJenisKejadian"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:paddingHorizontal="12dp" />
+
+        <EditText
+            android:id="@+id/etDeskripsi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="4"
+            android:gravity="top|start"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="Deskripsi Kejadian\nCeritakan kejadian secara singkat dan jelas"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
+            android:weightSum="2">
+
+            <EditText
+                android:id="@+id/etWaktu"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_input_cyan"
+                android:focusable="false"
+                android:hint="Waktu Kejadian   00 : 00"
+                android:paddingHorizontal="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#00838F"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etTanggal"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_input_cyan"
+                android:focusable="false"
+                android:hint="Tanggal Kejadian  dd/mm/yyyy"
+                android:paddingHorizontal="12dp"
+                android:textColor="#000000"
+                android:textColorHint="#00838F"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etLokasi"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_input_cyan"
+            android:drawableEnd="@android:drawable/ic_menu_mylocation"
+            android:hint="Lokasi Kejadian"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Identitas Pelapor"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/etNamaPelapor"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="Nama"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etNimPelapor"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="NIM"
+            android:inputType="textCapCharacters"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etKontak"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="Kontak (Whatsapp/Email)"
+            android:inputType="phone"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Identitas Terlapor"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/etNamaTerlapor"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="Nama (jika diketahui)"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/etCiriCiri"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:hint="Ciri-ciri"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/spinStatusTerlapor"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_input_cyan"
+            android:paddingHorizontal="12dp" />
+
+        <TextView
+            android:id="@+id/tvUploadBukti"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_input_cyan"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:text="Upload Bukti Pendukung (Opsional)"
+            android:textColor="#00838F"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Kerahasiaan data pelapor dijamin. Laporan akan diproses sesuai prosedur yang berlaku"
+            android:textColor="#333333"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnKirimLaporan"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:backgroundTint="#FF0000"
+            android:text="KIRIM LAPORAN"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hak Cipta © 2026 UnramHUB. Seluruh hak dilindungi."
+            android:textAlignment="center"
+            android:textColor="#888888"
+            android:textSize="10sp"
+            android:layout_marginBottom="20dp"/>
+
+    </LinearLayout>
+</ScrollView>

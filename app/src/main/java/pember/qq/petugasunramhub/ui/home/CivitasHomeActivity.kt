@@ -90,30 +90,22 @@ class CivitasHomeActivity : AppCompatActivity() {
         val options = arrayOf("Anonim", "User Biasa")
         val cleanCategoryName = category.label.replace("\n", " ")
 
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-
-        // Kita gabungin info kategori ke Title biar area konten utama nggak konflik
-        builder.setTitle("Pilih jenis pelapor disini\n(Kategori: $cleanCategoryName)")
-
-        // Jangan pakai builder.setMessage() di sini karena bakal menimpa daftar pilihan di bawah!
-        builder.setItems(options) { dialog, which ->
-            when (which) {
-                0 -> {
-                    Toast.makeText(this, "Melapor sebagai Anonim untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Pilih Metode Pelaporan")
+            .setMessage("Kategori: $cleanCategoryName")
+            .setItems(options) { dialog, which ->
+                val intent = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
+                    putExtra("CATEGORY_ID", category.id)
+                    putExtra("CATEGORY_NAME", cleanCategoryName)
+                    putExtra("IS_ANONYMOUS", which == 0)
                 }
-                1 -> {
-                    Toast.makeText(this, "Melapor sebagai User Biasa untuk $cleanCategoryName", Toast.LENGTH_SHORT).show()
-                }
+                startActivity(intent)
+                dialog.dismiss()
             }
-            dialog.dismiss()
-        }
-
-        builder.setNegativeButton("Batal") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        val dialog = builder.create()
-        dialog.show()
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun setupLostItemsRecyclerView() {

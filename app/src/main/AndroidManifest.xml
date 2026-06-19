@@ -29,6 +29,8 @@
 
         <activity android:name=".ui.home.CivitasHomeActivity" />
 
+        <activity android:name=".ui.form.FormLaporanActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
