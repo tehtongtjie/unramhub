@@ -1,0 +1,64 @@
+### 1. General Removal (All Categories)
+
+  • Remove completely (as requested):
+      •  etNamaTerlapor  (Nama Terlapor)
+      •  etCiriCiri  (Ciri-ciri Terlapor)
+      •  spinStatusTerlapor  (Status Terlapor)
+      • Reason: These details will be included by the user in the main description field if known.
+
+  ──────
+  ### 2. Category-Specific Input Strategy
+
+   Category               | Keep                                                          | Hide / Remove                   | Rationale
+  ------------------------|---------------------------------------------------------------|---------------------------------|----------------------------------------------------------------
+   Kekerasan / Pelecehan  | DeskripsiWaktu & TanggalLokasiJenis PelaporIdentitas Pelapor  | None (except Terlapor fields)   | Crucial to have precise timestamps and reporter types
+                          | (Nama, NIM, Kontak)*Upload Bukti                              |                                 | (Mahasiswa/Dosen/Staff) for PPKS handling.
+   Kerusakan Fasilitas    | DeskripsiLokasiIdentitas Pelapor (Nama, NIM, Kontak)*Upload   | Waktu & TanggalJenis Pelapor    | For facility issues, the location and a photo (Upload Bukti)
+                          | Bukti                                                         |                                 | are the most critical. Waktu/Tanggal is less important as it
+                          |                                                               |                                 | is an ongoing state.
+   Bencana / Darurat      | DeskripsiLokasiIdentitas Pelapor (Nama, NIM, Kontak)*         | Waktu & TanggalJenis            | Emergency reports are immediate, so the submission timestamp
+                          |                                                               | PelaporUpload Bukti             | is sufficient. Keeping the form minimal allows fast
+                          |                                                               | (Optional/Hidden)               | submission.
+   Barang Hilang / Temuan | DeskripsiWaktu & TanggalLokasiIdentitas Pelapor (Nama, NIM,   | Jenis Pelapor                   | Knowing when/where the item was lost/found, a description, and
+                          | Kontak)*Upload Bukti                                          |                                 | a photo are essential for matchmaking.
+   Lainnya (General)      | DeskripsiWaktu & TanggalLokasiIdentitas Pelapor (Nama, NIM,   | Jenis Pelapor                   | Fallback option keeping all standard fields.
+                          | Kontak)*Upload Bukti                                          |                                 |
+
+  *Note: Identitas Pelapor (Nama & NIM) will be hidden/cleared if the user selects "Laporkan sebagai Anonim" when opening the form.
+  ──────
+  ### How we can implement this:
+
+  Instead of creating 5 different XML layouts (which makes maintenance hard), we can programmatically show or hide ( View.VISIBLE  vs  View.GONE ) the inputs inside CivitasFormLaporan.kt
+based on
+  the  CATEGORY_ID  passed via the intent.
+
+  Does this strategy align with what you want? Let me know which fields you would like to adjust!
+
+### Rincian Perubahan:
+
+  1. Layout (civitas_form_laporan.xml):
+      • Menghapus seluruh bagian input Identitas Terlapor (Nama Terlapor, Ciri-ciri Terlapor, dan Status Terlapor).
+      • Menambahkan ID  layoutWaktuTanggal  pada layout linear pembungkus waktu & tanggal.
+      • Menambahkan ID  tvLabelIdentitasPelapor  pada judul label identitas pelapor.
+  2. Aktivitas (CivitasFormLaporan.kt):
+      • Membaca parameter  CATEGORY_ID ,  CATEGORY_NAME , dan  EXTRA_IS_ANONYMOUS  yang dikirim dari Home Activity.
+      • Menampilkan nama kategori terpilih sebagai judul halaman (ActionBar).
+      • Menyembunyikan spinner Jenis Kejadian karena kategori sudah dipilih dari halaman depan.
+      • Visibilitas Anonim: Jika dikirim sebagai anonim ( EXTRA_IS_ANONYMOUS == true ), field Nama, NIM, beserta labelnya otomatis diatur ke  View.GONE  (disembunyikan) dan diabaikan dari
+      proses validasi.
+      • Dinamis Per Kategori:
+          • Kekerasan / Pelecehan (ID 1): Menampilkan jenis pelapor, waktu & tanggal, lokasi, dan upload bukti.
+	  • Kerusakan Fasilitas (ID 2): Menyembunyikan jenis pelapor dan waktu & tanggal. Menampilkan lokasi dan upload bukti.
+	  • Bencana / Darurat (ID 3): Menyembunyikan jenis pelapor, waktu & tanggal, dan upload bukti (untuk pelaporan instan). Menampilkan lokasi.
+	  • Barang Hilang / Temuan & Lainnya (ID 4 & Default): Menyembunyikan jenis pelapor. Menampilkan waktu & tanggal, lokasi, dan upload bukti.
+      • Validasi Pintar: Fungsi  validateAndSubmit()  disesuaikan agar hanya memvalidasi input-input yang saat itu berstatus  View.VISIBLE  di layar.
+
+### Rincian Implementasi Scroll Vertikal (Up and Down) untuk Progress Laporan:
+
+  1. Layout Item Baru: Membuat file layout civitas_item_report_progress.xml yang berisi cetak biru tampilan per kartu progress.
+  2. Penggantian Komponen: Mengganti  CardView  statis di civitas_home.xml menjadi  RecyclerView  vertikal dengan konfigurasi  android:nestedScrollingEnabled="false"  agar mendukung scroll
+  atas/bawah secara halus di dalam  NestedScrollView  utama tanpa bentrok.
+  3. Pembuatan Adapter & Model: Membuat CivitasReportProgressAdapter.kt berisi data model  CivitasReportProgress  dan logika binding view untuk performa daftar yang dinamis.
+  4. Integrasi Data: Memperbarui CivitasHomeActivity.kt untuk memuat data laporan progress dummy (3 laporan berbeda dengan variasi status & progress bar) serta mendaftarkan aksi klik
+"Selengkapnya"
+  pada tiap baris laporan.

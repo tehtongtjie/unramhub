@@ -28,6 +28,7 @@ class CivitasHomeActivity : AppCompatActivity() {
 
         setupListeners()
         setupCategoriesRecyclerView()
+        setupReportProgressRecyclerView()
         setupLostItemsRecyclerView()
     }
 
@@ -60,9 +61,14 @@ class CivitasHomeActivity : AppCompatActivity() {
             Toast.makeText(this, "Mengarahkan ke Formulir Pelaporan PPKS", Toast.LENGTH_SHORT).show()
         }
 
-        // Laporan Sedang Ditinjau (Progress)
-        binding.btnCivitasSelengkapnyaProgress.setOnClickListener {
-            Toast.makeText(this, "Membuka detail pelaporan [Kerusakan Fasilitas] Anda", Toast.LENGTH_SHORT).show()
+        // Lihat Semua Progress
+        binding.tvCivitasLihatSemuaProgress.setOnClickListener {
+            Toast.makeText(this, "Membuka halaman seluruh laporan Anda", Toast.LENGTH_SHORT).show()
+        }
+
+        // Lihat Semua Barang Hilang
+        binding.tvCivitasLihatSemuaLostItems.setOnClickListener {
+            Toast.makeText(this, "Membuka halaman seluruh info barang hilang & temuan", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -150,6 +156,40 @@ class CivitasHomeActivity : AppCompatActivity() {
 
         binding.rvCivitasLostItems.adapter = CivitasLostItemAdapter(dummyLostItems) { item ->
             Toast.makeText(this, "Melihat detail barang: ${item.title}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupReportProgressRecyclerView() {
+        val dummyReports = listOf(
+            CivitasReportProgress(
+                id = 1,
+                title = "Laporan [Kerusakan Fasilitas] Anda sedang ditindaklanjuti.",
+                progress = 40,
+                status = "Dalam Tinjauan"
+            ),
+            CivitasReportProgress(
+                id = 2,
+                title = "Laporan [Kekerasan/Pelecehan] Anda sedang diproses.",
+                progress = 70,
+                status = "Sedang Diproses"
+            ),
+            CivitasReportProgress(
+                id = 3,
+                title = "Laporan [Bencana/Darurat] Anda telah selesai.",
+                progress = 100,
+                status = "Selesai"
+            )
+        )
+
+        // Membatasi maksimal 3 laporan yang muncul di Dashboard
+        val limitedReports = dummyReports.take(3)
+
+        // Konfigurasi RecyclerView Progress Laporan secara Vertikal
+        binding.rvCivitasReportProgress.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        binding.rvCivitasReportProgress.adapter = CivitasReportProgressAdapter(limitedReports) { report ->
+            Toast.makeText(this, "Membuka detail progress: ${report.title}", Toast.LENGTH_SHORT).show()
         }
     }
 }

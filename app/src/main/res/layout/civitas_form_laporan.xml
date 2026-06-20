@@ -42,6 +42,7 @@
             android:textSize="14sp" />
 
         <LinearLayout
+            android:id="@+id/layoutWaktuTanggal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -91,6 +92,7 @@
             android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/tvLabelIdentitasPelapor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Identitas Pelapor"
@@ -135,46 +137,6 @@
             android:textColor="#000000"
             android:textColorHint="#00838F"
             android:textSize="14sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Identitas Terlapor"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etNamaTerlapor"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_input_cyan"
-            android:hint="Nama (jika diketahui)"
-            android:paddingHorizontal="12dp"
-            android:textColor="#000000"
-            android:textColorHint="#00838F"
-            android:textSize="14sp" />
-
-        <EditText
-            android:id="@+id/etCiriCiri"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_input_cyan"
-            android:hint="Ciri-ciri"
-            android:paddingHorizontal="12dp"
-            android:textColor="#000000"
-            android:textColorHint="#00838F"
-            android:textSize="14sp" />
-
-        <Spinner
-            android:id="@+id/spinStatusTerlapor"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_input_cyan"
-            android:paddingHorizontal="12dp" />
 
         <TextView
             android:id="@+id/tvUploadBukti"
