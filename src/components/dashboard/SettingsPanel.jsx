@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 export default function SettingsPanel() {
@@ -6,38 +6,32 @@ export default function SettingsPanel() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  async function fetchSettings() {
     const { data } = await supabase.from("system_settings").select("*");
     if (data) {
-      const sizeRow = data.find(r => r.key === "max_upload_size_mb");
-      const maintRow = data.find(r => r.key === "maintenance_mode");
-      
+      const sizeRow = data.find((r) => r.key === "max_upload_size_mb");
+      const maintRow = data.find((r) => r.key === "maintenance_mode");
+
       if (sizeRow) setMaxSize(sizeRow.value);
       if (maintRow) setIsMaintenance(maintRow.value === "true");
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSettings();
+  }, []);
 
   const handleSaveSettings = async () => {
     try {
       setLoading(true);
 
-      // JIKA DI MASA DEPAN TAKTIK RPC / MOBILE VALIDATION SUDAH SIAP, AKTIFKAN KEMBALI KODE INI:
-      // await supabase
-      //   .from("system_settings")
-      //   .update({ value: String(maxSize) })
-      //   .eq("key", "max_upload_size_mb");
-
-      // Update status operasional mode maintenance aplikasi (Hanya ini yang dieksekusi karena sudah berfungsi)
       await supabase
         .from("system_settings")
         .update({ value: String(isMaintenance) })
         .eq("key", "maintenance_mode");
 
-      alert("Konfigurasi parameter sistem yang aktif berhasil disimpan!");
+      alert("Konfigurasi sistem berhasil disimpan.");
     } catch (err) {
       console.error(err);
       alert("Gagal merubah konfigurasi.");
@@ -47,85 +41,49 @@ export default function SettingsPanel() {
   };
 
   return (
-    <div className="content-panel">
+    <div className="content-panel dashboard-section">
       <div className="panel-header">
-        <h3>Konfigurasi Sistem Utama</h3>
-        <p className="description-text">Atur batasan keamanan API dan hak kontrol runtime aplikasi seluler mahasiswa UnramHUB dari jarak jauh.</p>
+        <div>
+          <h3>Konfigurasi Sistem Utama</h3>
+          <p className="description-text">Atur parameter runtime aplikasi dan mode perawatan sistem.</p>
+        </div>
       </div>
 
-      <div style={{ maxWidth: "500px", display: "flex", flexDirection: "column", gap: "1.5rem", marginTop: "1.5rem" }}>
-        
-        {/* Opsi 1: Batas File Bukti (DI-DISABLE KARENA BELUM TERHUBUNG KE STRUKTUR BUCKET) */}
-        <div style={{ 
-          backgroundColor: "#f1f5f9", 
-          padding: "16px", 
-          borderRadius: "8px", 
-          border: "1px solid #cbd5e1",
-          opacity: 0.65,
-          position: "relative"
-        }}>
-          {/* Badge Indikator Belum Berfungsi */}
-          <span style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            backgroundColor: "#94a3b8",
-            color: "#fff",
-            fontSize: "11px",
-            fontWeight: "600",
-            padding: "2px 8px",
-            borderRadius: "4px"
-          }}>
-            Belum Berfungsi
-          </span>
-
-          <label style={{ display: "block", fontWeight: "600", fontSize: "0.95rem", marginBottom: "6px", color: "#64748b" }}>
-            Batas Maksimal Upload File Bukti
-          </label>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <input 
-              type="number" 
-              value={maxSize} 
-              disabled={true} // Dikunci agar tidak membingungkan Admin
-              style={{ 
-                width: "80px", 
-                padding: "8px", 
-                borderRadius: "6px", 
-                border: "1px solid #cbd5e1", 
-                backgroundColor: "#e2e8f0", 
-                color: "#64748b",
-                cursor: "not-allowed" 
-              }} 
-            />
-            <span style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: "500" }}>Megabytes (MB)</span>
+      <div className="panel-stack" style={{ maxWidth: 560 }}>
+        <div className="ui-card settings-card" style={{ opacity: 0.72 }}>
+          <div className="panel-header" style={{ marginBottom: 12 }}>
+            <div>
+              <label className="ui-label">Batas Maksimal Upload File Bukti</label>
+              <div className="field-note">Fitur ini belum aktif di backend, jadi tampil sebagai informasi saja.</div>
+            </div>
+            <span className="ui-badge ui-badge--muted" style={{ textAlign: "center", lineHeight: 1.05, minWidth: 78 }}>
+              Belum
+              <br />
+              Aktif
+            </span>
           </div>
-          <p style={{ margin: "6px 0 0 0", fontSize: "0.8rem", color: "#94a3b8" }}>
-            Fitur ini memerlukan konfigurasi RPC Storage Bucket di Supabase agar dapat membatasi ukuran berkas secara riil.
-          </p>
+          <div className="toolbar">
+            <input type="number" value={maxSize} disabled className="ui-input" style={{ width: 120 }} />
+            <span className="field-note" style={{ alignSelf: "center" }}>Megabytes (MB)</span>
+          </div>
         </div>
 
-        {/* Opsi 2: Saklar Maintenance Switch (TETAP AKTIF BERFUNGSI) */}
-        <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="ui-card settings-card">
+          <div className="settings-toggle-row">
             <div>
-              <label style={{ display: "block", fontWeight: "600", fontSize: "0.95rem" }}>Mode Perawatan Sistem (Maintenance)</label>
-              <p style={{ margin: "4px 0 0 0", fontSize: "0.8rem", color: "#64748b" }}>Mengunci fungsi pengiriman aduan baru jika sistem pusat Unram sedang diperbaiki.</p>
+              <label className="ui-label">Mode Perawatan Sistem</label>
+              <div className="field-note">Mengunci fungsi pengiriman aduan baru saat sistem dipelihara.</div>
             </div>
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={isMaintenance}
               onChange={(e) => setIsMaintenance(e.target.checked)}
-              style={{ width: "22px", height: "22px", cursor: "pointer" }}
+              style={{ width: 22, height: 22 }}
             />
           </div>
         </div>
 
-        <button 
-          onClick={handleSaveSettings} 
-          className="action-btn" 
-          style={{ backgroundColor: "#2563eb", color: "#fff", alignSelf: "flex-start", padding: "10px 24px" }}
-          disabled={loading}
-        >
+        <button onClick={handleSaveSettings} className="ui-btn ui-btn--solid" disabled={loading} style={{ width: "fit-content" }}>
           {loading ? "Menyimpan..." : "Simpan Perubahan Sistem"}
         </button>
       </div>

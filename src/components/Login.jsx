@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import './Login.css';
 
@@ -27,7 +27,7 @@ export default function Login({ onLoginSuccess }) {
       localStorage.setItem('user_role', user.role);
       localStorage.setItem('user_name', user.name);
       localStorage.setItem('is_logged_in', 'true');
-      
+
       onLoginSuccess();
     } catch (err) {
       setError(err.message);
@@ -38,39 +38,41 @@ export default function Login({ onLoginSuccess }) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      <div className="login-card ui-card">
         <div className="login-header">
-          {/* Tambahkan logo Unram di sini jika sudah ada */}
+          <div className="login-mark">UH</div>
           <h2 className="login-title">UnramHUB</h2>
-          <p className="login-subtitle">Silakan login untuk mengakses portal admin</p>
+          <p className="login-subtitle">
+            Portal admin minimalis untuk pengelolaan laporan dan layanan kampus.
+          </p>
         </div>
-        
+
         {error && <div className="error-box">{error}</div>}
-        
-        <form onSubmit={handleSubmit}>
+
+        <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
-            <label className="input-label">NIM / NIP / Username</label>
-            <input 
-              type="text" 
-              className="login-input" 
+            <label className="ui-label">NIM / NIP / Username</label>
+            <input
+              type="text"
+              className="login-input ui-input"
               placeholder="Masukkan identitas Anda"
-              value={nim} 
-              onChange={(e) => setNim(e.target.value)} 
-              required 
+              value={nim}
+              onChange={(e) => setNim(e.target.value)}
+              required
             />
           </div>
           <div className="input-group">
-            <label className="input-label">Password</label>
-            <input 
-              type="password" 
-              className="login-input" 
+            <label className="ui-label">Password</label>
+            <input
+              type="password"
+              className="login-input ui-input"
               placeholder="••••••••"
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
-          <button type="submit" className="login-button" disabled={loading}>
+          <button type="submit" className="login-button ui-btn ui-btn--solid" disabled={loading}>
             {loading ? 'Memvalidasi...' : 'Masuk ke Sistem'}
           </button>
         </form>

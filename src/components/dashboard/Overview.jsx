@@ -1,49 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase"; // Sesuaikan path config Supabase Anda
+import { useEffect, useState } from "react";
+import { FaCheckCircle, FaClock, FaFileAlt, FaHourglassHalf } from "react-icons/fa";
+import { supabase } from "../../lib/supabase";
 
-export default function Overview({ 
-  stats, 
-  categories, 
-  selectedCategory, 
-  setSelectedCategory, 
-  loading, 
-  error, 
-  filteredReports, 
-  statusStyles 
+export default function Overview({
+  stats,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+  loading,
+  error,
+  filteredReports,
+  statusStyles
 }) {
-  // State untuk manajemen Modal Penugasan
   const [selectedReport, setSelectedReport] = useState(null);
   const [availableOfficers, setAvailableOfficers] = useState([]);
   const [chosenOfficerId, setChosenOfficerId] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
 
-  // Ambil daftar petugas yang sesuai dengan kategori laporan yang sedang diklik
-  useEffect(() => {
-    if (selectedReport) {
-      fetchOfficersByCategory(selectedReport.category_id);
-    }
-  }, [selectedReport]);
-
-  const fetchOfficersByCategory = async (categoryId) => {
+  async function fetchOfficersByCategory(categoryId) {
     try {
       let officers = [];
-      console.log("Memulai fetch untuk Category ID:", categoryId); 
 
-      // JIKA KATEGORI "LAINNYA" (ID: 5)
       if (String(categoryId) === "5") {
-        // Ambil semua user yang rolenya officer langsung dari tabel users
         const { data, error: fetchErr } = await supabase
           .from("users")
           .select("id, name, nim_nip, role")
           .eq("role", "officer");
 
         if (fetchErr) throw fetchErr;
-
-        // Saring agar Satgas PPKS (ID: 10) tidak masuk ke kategori umum
-        officers = data ? data.filter(user => String(user.id) !== "10") : [];
-
+        officers = data ? data.filter((user) => String(user.id) !== "10") : [];
       } else {
-        // JIKA KATEGORI SPESIFIK (1, 2, 3, 4)
         const { data, error: fetchErr } = await supabase
           .from("officer_categories")
           .select(`
@@ -53,29 +39,25 @@ export default function Overview({
           .eq("category_id", categoryId);
 
         if (fetchErr) throw fetchErr;
-        
-        // Pastikan data relasi users ada dan tidak null
-        officers = data ? data.filter(item => item.users !== null).map(item => item.users) : [];
+        officers = data ? data.filter((item) => item.users !== null).map((item) => item.users) : [];
       }
 
-      console.log("Petugas yang berhasil dimuat:", officers); 
       setAvailableOfficers(officers);
-      
-      // FIX AMAN: Set default value indeks ke-0 dikonversi ke String agar sinkron dengan HTML select
-      if (officers && officers.length > 0 && officers?.id) {
-        setChosenOfficerId(String(officers.id)); 
-      } else {
-        setChosenOfficerId(""); 
-      }
-
+      setChosenOfficerId(officers.length > 0 ? String(officers[0].id) : "");
     } catch (err) {
-      console.error("🚨 Error fatal saat memuat petugas:", err);
+      console.error("Error saat memuat petugas:", err);
       setAvailableOfficers([]);
       setChosenOfficerId("");
     }
-  };
+  }
 
-  // Fungsi saat Admin menekan tombol "Simpan Penugasan"
+  useEffect(() => {
+    if (selectedReport) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchOfficersByCategory(selectedReport.category_id);
+    }
+  }, [selectedReport]);
+
   const handleAssignSubmit = async (e) => {
     e.preventDefault();
     if (!chosenOfficerId || !selectedReport) {
@@ -86,7 +68,6 @@ export default function Overview({
     try {
       setAssignLoading(true);
 
-      // 1. Update status laporan di tabel 'reports' menjadi 'assigned'
       const { error: reportErr } = await supabase
         .from("reports")
         .update({
@@ -97,22 +78,23 @@ export default function Overview({
 
       if (reportErr) throw reportErr;
 
-      // 2. Tulis riwayat pengerjaan awal ke tabel 'task_logs'
       const { error: logErr } = await supabase
         .from("task_logs")
-        .insert([{
-          report_id: selectedReport.id,
-          changed_by: 1, // Merujuk ke ID Admin utama di database (Prof. Dian)
-          old_status: "pending",
-          new_status: "assigned",
-          notes: "Laporan telah diverifikasi oleh Admin Panel UnramHUB dan diteruskan ke petugas lapangan terkait."
-        }]);
+        .insert([
+          {
+            report_id: selectedReport.id,
+            changed_by: 1,
+            old_status: "pending",
+            new_status: "assigned",
+            notes: "Laporan telah diverifikasi dan diteruskan ke petugas terkait."
+          }
+        ]);
 
       if (logErr) throw logErr;
 
       alert("Laporan aduan berhasil ditugaskan!");
-      setSelectedReport(null); // Tutup modal
-      window.location.reload(); // Refresh halaman agar widget dan tabel sinkron otomatis
+      setSelectedReport(null);
+      window.location.reload();
     } catch (err) {
       console.error("Gagal melakukan delegasi tugas:", err);
       alert("Terjadi kesalahan saat memproses penugasan.");
@@ -121,20 +103,38 @@ export default function Overview({
     }
   };
 
+  const statCards = [
+    { key: "total", label: "Total Aduan", value: stats.total, icon: FaFileAlt },
+    { key: "pending", label: "Menunggu", value: stats.pending, icon: FaHourglassHalf },
+    { key: "processing", label: "Diproses", value: stats.processing, icon: FaClock },
+    { key: "completed", label: "Selesai", value: stats.completed, icon: FaCheckCircle }
+  ];
+
   return (
     <>
-      {/* Widget Angka Ringkasan */}
       <div className="stats-grid">
-        <div className="stat-card total"><h3>{stats.total}</h3><p>Total Aduan</p></div>
-        <div className="stat-card pending"><h3>{stats.pending}</h3><p>Menunggu</p></div>
-        <div className="stat-card processing"><h3>{stats.processing}</h3><p>Diproses</p></div>
-        <div className="stat-card completed"><h3>{stats.completed}</h3><p>Selesai</p></div>
+        {statCards.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <div key={item.key} className="stat-card">
+              <div className="stat-card-top">
+                <div>
+                  <h3>{item.value}</h3>
+                  <p className="stat-card-label">{item.label}</p>
+                </div>
+                <div className="stat-card-icon">
+                  <Icon />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Panel Utama Tabel */}
-      <div className="content-panel">
+      <div className="content-panel dashboard-section">
         <div className="filter-tabs">
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat.id}
               className={`tab-btn ${selectedCategory === cat.id ? "active" : ""}`}
@@ -148,7 +148,7 @@ export default function Overview({
         {loading ? (
           <div className="loading-skeleton">Mengambil data aduan dari database...</div>
         ) : error ? (
-          <div className="status-message error">{error}</div>
+          <div className="status-message">{error}</div>
         ) : filteredReports.length === 0 ? (
           <div className="status-message">Tidak ada laporan di kategori ini.</div>
         ) : (
@@ -165,32 +165,21 @@ export default function Overview({
               <tbody>
                 {filteredReports.map((report) => {
                   const statusInfo = statusStyles[report.status] || statusStyles.default;
-                  
+
                   return (
                     <tr key={report.id}>
                       <td className="font-medium">{report.title}</td>
-                      <td className="category-text">
-                        {report.categories?.name || "Lainnya"}
-                      </td>
+                      <td className="category-text">{report.categories?.name || "Lainnya"}</td>
                       <td>
-                        <span className="badge" style={statusInfo}>
-                          {statusInfo.label}
-                        </span>
+                        <span className="badge">{statusInfo.label}</span>
                       </td>
                       <td style={{ textAlign: "center" }}>
                         {report.status === "pending" ? (
-                          <button 
-                            className="action-btn" 
-                            style={{ backgroundColor: "#2563eb", color: "#fff" }}
-                            onClick={() => setSelectedReport(report)}
-                          >
+                          <button className="ui-btn ui-btn--solid" onClick={() => setSelectedReport(report)}>
                             Tugaskan
                           </button>
                         ) : (
-                          <button 
-                            className="action-btn" 
-                            onClick={() => alert(`Detail ID Laporan: ${report.id}`)}
-                          >
+                          <button className="ui-btn ui-btn--ghost" onClick={() => alert(`Detail ID Laporan: ${report.id}`)}>
                             Detail
                           </button>
                         )}
@@ -204,93 +193,78 @@ export default function Overview({
         )}
       </div>
 
-      {/* MODAL INTERAKTIF PENUGASAN */}
       {selectedReport && (
-        <div className="modal-overlay" style={modalOverlayStyle}>
-          <div className="modal-box" style={modalBoxStyle}>
-            <h4>Form Delegasi Petugas UnramHUB</h4>
-            <hr style={{ margin: "12px 0", borderColor: "#f1f5f9" }} />
-            
-            <p style={{ fontSize: "14px", margin: "4px 0" }}><strong>Judul Aduan:</strong> {selectedReport.title}</p>
-            <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "16px" }}>
-              <strong>Kategori Terkait:</strong> {selectedReport.categories?.name || "Lainnya"}
-            </p>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="panel-header">
+              <div>
+                <h4>Form Delegasi Petugas UnramHUB</h4>
+                <p className="description-text">Pilih petugas yang akan menangani laporan ini.</p>
+              </div>
+              <button type="button" className="ui-btn ui-btn--ghost" onClick={() => setSelectedReport(null)}>
+                Tutup
+              </button>
+            </div>
 
-            <form onSubmit={handleAssignSubmit}>
-              <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", fontSize: "14px", fontWeight: "600", marginBottom: "6px" }}>
-                  Pilih Personil yang Bertanggung Jawab:
-                </label>
-                
-                {availableOfficers.length === 0 ? (
-                  <p style={{ color: "#ef4444", fontSize: "13px", fontWeight: "500" }}>
-                    ⚠️ Tidak ada petugas lapangan yang tersedia untuk kategori ini!
-                  </p>
-                ) : (
-                  /* FIX SELECT VALUE BINDING & ONCHANGE */
-                  <select 
-                    style={selectStyle}
-                    value={chosenOfficerId}
-                    onChange={(e) => setChosenOfficerId(e.target.value)}
-                    required
-                  >
-                    <option value="" disabled>-- Pilih Personil Lapangan --</option>
-                    {availableOfficers.map(officer => (
-                      <option key={officer.id} value={String(officer.id)}>
-                        {officer.name} ({officer.nim_nip})
+            <div className="panel-stack">
+              <div className="field-group">
+                <div className="ui-badge ui-badge--muted" style={{ width: "fit-content" }}>
+                  {selectedReport.categories?.name || "Lainnya"}
+                </div>
+                <strong>{selectedReport.title}</strong>
+              </div>
+
+              <form onSubmit={handleAssignSubmit} className="panel-stack">
+                <div className="field-group">
+                  <label className="ui-label">Pilih Personil</label>
+                  {availableOfficers.length === 0 ? (
+                    <p className="field-note">Tidak ada petugas lapangan yang tersedia untuk kategori ini.</p>
+                  ) : (
+                    <select
+                      className="ui-select"
+                      value={chosenOfficerId}
+                      onChange={(e) => setChosenOfficerId(e.target.value)}
+                      required
+                    >
+                      <option value="" disabled>
+                        -- Pilih Personil Lapangan --
                       </option>
-                    ))}
-                  </select>
-                )}
-              </div>
+                      {availableOfficers.map((officer) => (
+                        <option key={officer.id} value={String(officer.id)}>
+                          {officer.name} ({officer.nim_nip})
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                <button 
-                  type="button" 
-                  style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #cbd5e1", backgroundColor: "#fff", cursor: "pointer" }}
-                  onClick={() => setSelectedReport(null)}
-                >
-                  Batal
-                </button>
-                
-                {/* FIX VALIDASI KONDISI SUBMIT BUTTON */}
-                <button 
-                  type="submit" 
-                  style={{ 
-                    padding: "8px 16px", 
-                    borderRadius: "6px", 
-                    border: "none", 
-                    backgroundColor: (assignLoading || availableOfficers.length === 0 || !chosenOfficerId) ? "#cbd5e1" : "#2563eb", 
-                    color: "#fff", 
-                    cursor: (assignLoading || availableOfficers.length === 0 || !chosenOfficerId) ? "not-allowed" : "pointer" 
-                  }}
-                  disabled={assignLoading || availableOfficers.length === 0 || !chosenOfficerId}
-                >
-                  {assignLoading 
-                    ? "Memproses..." 
-                    : availableOfficers.length === 0 
-                      ? "Petugas Kosong" 
-                      : !chosenOfficerId 
-                        ? "Pilih Petugas Dulu" 
-                        : "Simpan Penugasan"}
-                </button>
-              </div>
-            </form>
+                <div className="toolbar" style={{ justifyContent: "flex-end" }}>
+                  <button
+                    type="button"
+                    className="ui-btn ui-btn--ghost"
+                    onClick={() => setSelectedReport(null)}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="ui-btn ui-btn--solid"
+                    disabled={assignLoading || availableOfficers.length === 0 || !chosenOfficerId}
+                  >
+                    {assignLoading
+                      ? "Memproses..."
+                      : availableOfficers.length === 0
+                        ? "Petugas Kosong"
+                        : !chosenOfficerId
+                          ? "Pilih Petugas Dulu"
+                          : "Simpan Penugasan"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
     </>
   );
 }
-
-// Inline CSS Styles bantuan untuk Modal 
-const modalOverlayStyle = {
-  position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-  backgroundColor: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999
-};
-const modalBoxStyle = {
-  backgroundColor: "#fff", padding: "24px", borderRadius: "8px", width: "450px", maxWidth: "90%", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)"
-};
-const selectStyle = {
-  width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "14px", backgroundColor: "#f8fafc"
-};

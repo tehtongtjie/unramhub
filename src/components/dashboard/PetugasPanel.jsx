@@ -1,23 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase"; // Sesuaikan path menuju config supabase Anda
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 
 export default function PetugasPanel() {
   const [petugasList, setPetugasList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Jalankan fungsi penarikan data saat komponen dimuat
-  useEffect(() => {
-    fetchPetugas();
-  }, []);
-
-  const fetchPetugas = async () => {
+  async function fetchPetugas() {
     try {
       setLoading(true);
       setError(null);
 
-      // KUNCI BARU: Ambil data petugas lewat tabel relasi 'officer_categories' 
-      // Supaya kita bisa dapetin nama spesialisasi tugasnya dari tabel 'categories'
       const { data, error: fetchError } = await supabase
         .from("officer_categories")
         .select(`
@@ -36,8 +29,7 @@ export default function PetugasPanel() {
             name
           )
         `)
-        // Filter inner join untuk mastiin yang ketarik hanya yang rolenya 'officer'
-        .eq("users.role", "officer") 
+        .eq("users.role", "officer")
         .order("id", { ascending: true });
 
       if (fetchError) throw fetchError;
@@ -48,13 +40,21 @@ export default function PetugasPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPetugas();
+  }, []);
 
   return (
-    <div className="content-panel">
+    <div className="content-panel dashboard-section">
       <div className="panel-header">
-        <h3>Daftar Personil Tim Keamanan & Divisi Tugas</h3>
-        <button className="refresh-btn" onClick={fetchPetugas} disabled={loading}>
+        <div>
+          <h3>Daftar Personil Tim Keamanan</h3>
+          <p className="description-text">Data petugas dan spesialisasi tugas yang terhubung ke sistem.</p>
+        </div>
+        <button className="ui-btn ui-btn--ghost" onClick={fetchPetugas} disabled={loading}>
           {loading ? "Memuat..." : "Refresh"}
         </button>
       </div>
@@ -62,7 +62,7 @@ export default function PetugasPanel() {
       {loading ? (
         <div className="loading-skeleton">Mengambil data petugas dari database...</div>
       ) : error ? (
-        <div className="status-message error">{error}</div>
+        <div className="status-message">{error}</div>
       ) : petugasList.length === 0 ? (
         <div className="status-message">Belum ada data petugas terdaftar.</div>
       ) : (
@@ -70,50 +70,32 @@ export default function PetugasPanel() {
           <table className="table">
             <thead>
               <tr>
-                <th>NIP / ID Petugas</th>
-                <th>Nama Petugas</th>
+                <th>NIP / ID</th>
+                <th>Nama</th>
                 <th>Email</th>
-                <th>Kategori / Spesialisasi</th>
+                <th>Kategori</th>
                 <th>Status Akun</th>
                 <th style={{ textAlign: "center" }}>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {petugasList.map((item) => {
-                // Karena data user bersarang di dalam objek hasil join, kita pecah variabelnya
-                const p = item.users; 
+                const p = item.users;
                 const kategoriNama = item.categories?.name || "Belum Diatur";
 
-                // Antisipasi jaga-jaga kalau data user-nya bermasalah/kosong
                 if (!p) return null;
 
                 return (
                   <tr key={item.id}>
                     <td className="font-medium">{p.nim_nip}</td>
                     <td>{p.name}</td>
-                    <td>{p.email}</td>
-                    
-                    {/* KOLOM BARU: Menampilkan Divisi Keahlian Petugas */}
-                    <td className="category-text" style={{ fontWeight: "600", color: "#475569" }}>
-                      {kategoriNama}
-                    </td>
-
+                    <td className="category-text">{p.email}</td>
+                    <td className="category-text">{kategoriNama}</td>
                     <td>
-                      <span 
-                        className="badge" 
-                        style={{ 
-                          backgroundColor: p.is_active ? "#dcfce7" : "#fee2e2", 
-                          color: p.is_active ? "#166534" : "#991b1b" 
-                        }}
-                      >
-                        {p.is_active ? "Aktif" : "Nonaktif"}
-                      </span>
+                      <span className="badge">{p.is_active ? "Aktif" : "Nonaktif"}</span>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <button 
-                        className="action-btn-secondary" 
-                        onClick={() => alert(`Pengaturan divisi & akun untuk ${p.name}`)}
-                      >
+                      <button className="ui-btn ui-btn--ghost" onClick={() => alert(`Pengaturan akun untuk ${p.name}`)}>
                         Atur Akun
                       </button>
                     </td>
