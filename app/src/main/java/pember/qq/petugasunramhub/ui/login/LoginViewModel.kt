@@ -7,13 +7,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import pember.qq.petugasunramhub.data.model.User
 import pember.qq.petugasunramhub.data.repository.AuthRepository
+import pember.qq.petugasunramhub.utils.error.AppError
+import pember.qq.petugasunramhub.utils.error.AppException
+import pember.qq.petugasunramhub.utils.error.ErrorMapper
 
 class LoginViewModel : ViewModel() {
 
-    // Menggunakan inisialisasi langsung agar kompatibel dengan default ViewModelProvider.Factory bawaan 'by viewModels()'
     private val repository = AuthRepository()
 
-    // Menggunakan backing property privat dan mengekspos LiveData immutable ke Activity
     private val _loginState = MutableLiveData<LoginState>(LoginState.Idle)
     val loginState: LiveData<LoginState> get() = _loginState
 
@@ -22,7 +23,7 @@ class LoginViewModel : ViewModel() {
         val cleanPassword = password.trim()
 
         if (cleanNimNip.isBlank() || cleanPassword.isBlank()) {
-            _loginState.value = LoginState.Error("NIM/NIP dan password tidak boleh kosong")
+            _loginState.value = LoginState.Error(AppError.ValidationError("NIM/NIP dan password tidak boleh kosong"))
             return
         }
 
@@ -30,27 +31,29 @@ class LoginViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // Memanfaatkan Result Kotlin secara idiomatis dengan blok fold
                 repository.login(cleanNimNip, cleanPassword).fold(
                     onSuccess = { user ->
                         _loginState.value = LoginState.Success(user)
                     },
                     onFailure = { throwable ->
-                        _loginState.value = LoginState.Error(throwable.message ?: "Login gagal. Silakan coba lagi.")
+                        val appError = if (throwable is AppException) {
+                            throwable.error
+                        } else {
+                            ErrorMapper.map(throwable)
+                        }
+                        _loginState.value = LoginState.Error(appError)
                     }
                 )
             } catch (e: Throwable) {
-                // Menangkap Throwable (termasuk ExceptionInInitializerError) untuk mencegah crash jika konfigurasi salah
-                _loginState.value = LoginState.Error(e.message ?: "Terjadi kesalahan sistem")
+                _loginState.value = LoginState.Error(ErrorMapper.map(e))
             }
         }
     }
 }
 
-// Menggunakan Sealed Interface untuk efisiensi alokasi memori di runtime
 sealed interface LoginState {
     object Idle : LoginState
     object Loading : LoginState
     data class Success(val user: User) : LoginState
-    data class Error(val message: String) : LoginState
+    data class Error(val error: AppError) : LoginState
 }

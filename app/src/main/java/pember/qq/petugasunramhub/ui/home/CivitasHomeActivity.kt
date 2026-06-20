@@ -2,34 +2,37 @@ package pember.qq.petugasunramhub.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import pember.qq.petugasunramhub.R
+import pember.qq.petugasunramhub.data.model.Report
 import pember.qq.petugasunramhub.databinding.CivitasHomeBinding
-import pember.qq.petugasunramhub.utils.SessionManager // Pastikan ini di-import
+import pember.qq.petugasunramhub.utils.SessionManager
 
 class CivitasHomeActivity : AppCompatActivity() {
     private lateinit var binding: CivitasHomeBinding
-    private lateinit var sessionManager: SessionManager // Tambahkan properti sessionManager
+    private lateinit var sessionManager: SessionManager
+    private val viewModel: HomeViewModel by viewModels()
+    private lateinit var categoryAdapter: CivitasCategoryAdapter
+    private lateinit var lostItemAdapter: CivitasLostItemAdapter
+    private lateinit var progressAdapter: ReportListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Menggunakan ViewBinding untuk menghubungkan ke layout civitas_home.xml
         binding = CivitasHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Inisialisasi SessionManager
         sessionManager = SessionManager(this)
 
-        // Panggil fungsi untuk menampilkan data user
         displayUserProfile()
-
         setupListeners()
         setupCategoriesRecyclerView()
         setupReportProgressRecyclerView()
         setupLostItemsRecyclerView()
+        observeViewModel()
     }
 
     private fun displayUserProfile() {
@@ -53,43 +56,54 @@ class CivitasHomeActivity : AppCompatActivity() {
     private fun setupListeners() {
         // Aksi Klik Tombol Panic
         binding.btnCivitasPanic.setOnClickListener {
-            Toast.makeText(this, "🚨 Panic Button Aktif! Mengirim koordinat darurat...", Toast.LENGTH_LONG).show()
+            startActivitySafely(Intent(this, PanicActivity::class.java))
         }
 
-        // Banner Pelaporan Utama
+        // Banner Pelaporan Utama (Harus memilih kategori terlebih dahulu)
         binding.btnCivitasLaporBanner.setOnClickListener {
-            Toast.makeText(this, "Mengarahkan ke Formulir Pelaporan PPKS", Toast.LENGTH_SHORT).show()
+            val state = viewModel.categoryState.value
+            if (state is CategoryUiState.Success) {
+                showCategorySelectionDialog(state.categories)
+            } else {
+                Toast.makeText(this, "Daftar kategori belum siap, silakan coba lagi.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Lihat Semua Progress
         binding.tvCivitasLihatSemuaProgress.setOnClickListener {
-            Toast.makeText(this, "Membuka halaman seluruh laporan Anda", Toast.LENGTH_SHORT).show()
+            startActivitySafely(Intent(this, ListLaporanActivity::class.java))
         }
 
         // Lihat Semua Barang Hilang
         binding.tvCivitasLihatSemuaLostItems.setOnClickListener {
-            Toast.makeText(this, "Membuka halaman seluruh info barang hilang & temuan", Toast.LENGTH_SHORT).show()
+            startActivitySafely(Intent(this, LostItemsActivity::class.java))
         }
     }
 
     private fun setupCategoriesRecyclerView() {
-        // Data Dummy Kategori sesuai rancangan gambar kamu
-        val dummyCategories = listOf(
-            CivitasCategory(1, "Kekerasan/\nPelecehan", android.R.drawable.ic_menu_agenda),
-            CivitasCategory(2, "Kerusakan\nFasilitas", android.R.drawable.ic_menu_manage),
-            CivitasCategory(3, "Bencana/\nDarurat", android.R.drawable.ic_dialog_alert),
-            CivitasCategory(4, "Barang Hilang\n/Temuan", android.R.drawable.ic_menu_search),
-            CivitasCategory(5, "Lainnya", android.R.drawable.ic_menu_more)
-        )
-
-        // Konfigurasi RecyclerView Kategori secara Horizontal
         binding.rvCivitasCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        binding.rvCivitasCategories.adapter = CivitasCategoryAdapter(dummyCategories) { category ->
-            // Panggil fungsi pop-up dialog di sini
+        categoryAdapter = CivitasCategoryAdapter(emptyList()) { category ->
             showReportingTypeDialog(category)
         }
+        binding.rvCivitasCategories.adapter = categoryAdapter
+    }
+
+    private fun showCategorySelectionDialog(categories: List<CivitasCategory>) {
+        val categoryNames = categories.map { it.label.replace("\n", " ") }.toTypedArray()
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Pilih Kategori Laporan")
+        builder.setItems(categoryNames) { dialog, which ->
+            val selectedCategory = categories[which]
+            showReportingTypeDialog(selectedCategory)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Batal") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 
     private fun showReportingTypeDialog(category: CivitasCategory) {
@@ -113,7 +127,7 @@ class CivitasHomeActivity : AppCompatActivity() {
                 putExtra("EXTRA_IS_ANONYMOUS", which == 0)
             }
 
-            startActivity(intentKeForm)
+            startActivitySafely(intentKeForm)
             dialog.dismiss()
         }
 
@@ -125,71 +139,108 @@ class CivitasHomeActivity : AppCompatActivity() {
     }
 
     private fun setupLostItemsRecyclerView() {
-        // Data Dummy Barang Hilang
-        val dummyLostItems = listOf(
-            CivitasLostItem(
-                id = 1,
-                title = "Telah Hilang Kunci Motor Honda Vario",
-                date = "21/04/2026",
-                timeAgo = "Dilaporkan 2 jam lalu",
-                imageResId = R.mipmap.ic_launcher
-            ),
-            CivitasLostItem(
-                id = 2,
-                title = "Telah Hilang Kunci Motor Honda Vario",
-                date = "21/04/2026",
-                timeAgo = "Dilaporkan 2 jam lalu",
-                imageResId = R.mipmap.ic_launcher
-            ),
-            CivitasLostItem(
-                id = 3,
-                title = "Ditemukan Dompet Hitam di Parkiran",
-                date = "21/04/2026",
-                timeAgo = "Dilaporkan 5 jam lalu",
-                imageResId = R.mipmap.ic_launcher
-            )
-        )
-
-        // Konfigurasi RecyclerView Barang Hilang secara Horizontal
         binding.rvCivitasLostItems.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        binding.rvCivitasLostItems.adapter = CivitasLostItemAdapter(dummyLostItems) { item ->
+        lostItemAdapter = CivitasLostItemAdapter(emptyList()) { item ->
             Toast.makeText(this, "Melihat detail barang: ${item.title}", Toast.LENGTH_SHORT).show()
         }
+        binding.rvCivitasLostItems.adapter = lostItemAdapter
     }
 
     private fun setupReportProgressRecyclerView() {
-        val dummyReports = listOf(
-            CivitasReportProgress(
-                id = 1,
-                title = "Laporan [Kerusakan Fasilitas] Anda sedang ditindaklanjuti.",
-                progress = 40,
-                status = "Dalam Tinjauan"
-            ),
-            CivitasReportProgress(
-                id = 2,
-                title = "Laporan [Kekerasan/Pelecehan] Anda sedang diproses.",
-                progress = 70,
-                status = "Sedang Diproses"
-            ),
-            CivitasReportProgress(
-                id = 3,
-                title = "Laporan [Bencana/Darurat] Anda telah selesai.",
-                progress = 100,
-                status = "Selesai"
-            )
-        )
-
-        // Membatasi maksimal 3 laporan yang muncul di Dashboard
-        val limitedReports = dummyReports.take(3)
-
         // Konfigurasi RecyclerView Progress Laporan secara Vertikal
         binding.rvCivitasReportProgress.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        binding.rvCivitasReportProgress.adapter = CivitasReportProgressAdapter(limitedReports) { report ->
-            Toast.makeText(this, "Membuka detail progress: ${report.title}", Toast.LENGTH_SHORT).show()
+        progressAdapter = ReportListAdapter(emptyList()) { report ->
+            val intent = Intent(this, DetailLaporanActivity::class.java).apply {
+                putExtra("REPORT_ID", report.id)
+            }
+            startActivitySafely(intent)
+        }
+        binding.rvCivitasReportProgress.adapter = progressAdapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val userId = sessionManager.getUserId()
+        if (userId != -1L) {
+            viewModel.refresh(userId)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.categoryState.observe(this) { state ->
+            when (state) {
+                is CategoryUiState.Loading -> showCategoryStatus("Memuat kategori...")
+                is CategoryUiState.Success -> {
+                    categoryAdapter.updateData(state.categories)
+                    binding.tvCategoryStatus.visibility = View.GONE
+                    binding.rvCivitasCategories.visibility = View.VISIBLE
+                }
+                is CategoryUiState.Empty -> showCategoryStatus("Kategori belum tersedia.")
+                is CategoryUiState.Error -> showCategoryStatus(state.error.message)
+            }
+        }
+
+        viewModel.recentReportState.observe(this) { state ->
+            when (state) {
+                is RecentReportUiState.Loading -> showReportStatus("Memuat progress laporan...")
+                is RecentReportUiState.Success -> showRecentReports(state.reports)
+                is RecentReportUiState.Empty -> showReportStatus("Belum ada laporan untuk ditampilkan.")
+                is RecentReportUiState.Error -> showReportStatus(state.error.message)
+            }
+        }
+
+        viewModel.lostItemState.observe(this) { state ->
+            when (state) {
+                is LostItemUiState.Loading -> showLostItemStatus("Memuat info kehilangan dan temuan...")
+                is LostItemUiState.Success -> {
+                    lostItemAdapter.updateData(state.items)
+                    binding.tvLostItemStatus.visibility = View.GONE
+                    binding.rvCivitasLostItems.visibility = View.VISIBLE
+                }
+                is LostItemUiState.Empty -> showLostItemStatus("Belum ada info kehilangan atau temuan.")
+                is LostItemUiState.Error -> showLostItemStatus(state.error.message)
+            }
+        }
+    }
+
+    private fun showCategoryStatus(message: String) {
+        categoryAdapter.updateData(emptyList())
+        binding.rvCivitasCategories.visibility = View.GONE
+        binding.tvCategoryStatus.text = message
+        binding.tvCategoryStatus.visibility = View.VISIBLE
+    }
+
+    private fun showReportStatus(message: String) {
+        progressAdapter.updateData(emptyList())
+        binding.rvCivitasReportProgress.visibility = View.GONE
+        binding.tvReportStatus.text = message
+        binding.tvReportStatus.visibility = View.VISIBLE
+    }
+
+    private fun showLostItemStatus(message: String) {
+        lostItemAdapter.updateData(emptyList())
+        binding.rvCivitasLostItems.visibility = View.GONE
+        binding.tvLostItemStatus.text = message
+        binding.tvLostItemStatus.visibility = View.VISIBLE
+    }
+
+    private fun showRecentReports(reports: List<Report>) {
+        progressAdapter.updateData(reports)
+        binding.tvReportStatus.visibility = View.GONE
+        binding.rvCivitasReportProgress.visibility = View.VISIBLE
+    }
+
+    private fun startActivitySafely(intent: Intent) {
+        try {
+            startActivity(intent)
+        } catch (e: android.content.ActivityNotFoundException) {
+            Toast.makeText(this, "Halaman tujuan tidak ditemukan.", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Gagal membuka halaman tujuan.", Toast.LENGTH_SHORT).show()
         }
     }
 }

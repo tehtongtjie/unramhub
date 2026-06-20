@@ -7,17 +7,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import pember.qq.petugasunramhub.R
 
-// Model data sederhana untuk kategori
-data class CivitasCategory(
-    val id: Int,
-    val label: String,
-    val iconResId: Int // Menyimpan ID drawable untuk icon kategori
-)
-
 class CivitasCategoryAdapter(
-    private val categories: List<CivitasCategory>,
+    private var categories: List<CivitasCategory>,
     private val onItemClick: (CivitasCategory) -> Unit
 ) : RecyclerView.Adapter<CivitasCategoryAdapter.CategoryViewHolder>() {
+
+    fun updateData(newCategories: List<CivitasCategory>) {
+        categories = newCategories
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context)

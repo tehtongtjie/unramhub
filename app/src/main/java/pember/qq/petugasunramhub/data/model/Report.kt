@@ -14,7 +14,10 @@ data class Report(
     @SerializedName("categories") val categories: Category?,
     @SerializedName("users") val users: ReportUser?,
     @SerializedName("report_media") val reportMedia: List<ReportMedia>?,
-    @SerializedName("task_logs") val taskLogs: List<TaskLog>?
+    @SerializedName("task_logs") val taskLogs: List<TaskLog>?,
+    @SerializedName("incident_location") val incidentLocation: String? = null,
+    @SerializedName("incident_datetime") val incidentDatetime: String? = null,
+    @SerializedName("reporter_type") val reporterType: String? = null
 )
 
 data class Category(
@@ -38,4 +41,18 @@ data class TaskLog(
     @SerializedName("new_status") val newStatus: String,
     @SerializedName("notes") val notes: String?,
     @SerializedName("created_at") val createdAt: String
+)
+
+data class ReportRequest(
+    @SerializedName("user_id") val userId: Long,
+    @SerializedName("category_id") val categoryId: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("is_anonymous") val isAnonymous: Boolean,
+    @SerializedName("status") val status: String = "pending",
+    @SerializedName("incident_location") val incidentLocation: String? = null,
+    @SerializedName("incident_datetime") val incidentDatetime: String? = null,
+    @SerializedName("reporter_type") val reporterType: String? = null
 )

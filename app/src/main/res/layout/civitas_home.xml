@@ -136,6 +136,17 @@
             android:layout_marginBottom="16dp"
             tools:listitem="@layout/civitas_item_category" />
 
+        <TextView
+            android:id="@+id/tvCategoryStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Memuat kategori..."
+            tools:visibility="visible" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -174,6 +185,17 @@
             android:layout_marginBottom="16dp"
             tools:listitem="@layout/civitas_item_report_progress" />
 
+        <TextView
+            android:id="@+id/tvReportStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Memuat progress laporan..."
+            tools:visibility="visible" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -211,6 +233,17 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp"
             tools:listitem="@layout/civitas_item_lost_item" />
+
+        <TextView
+            android:id="@+id/tvLostItemStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Memuat info kehilangan dan temuan..."
+            tools:visibility="visible" />
 
         <TextView
             android:layout_width="match_parent"

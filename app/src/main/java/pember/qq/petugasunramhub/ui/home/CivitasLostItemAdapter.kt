@@ -1,5 +1,7 @@
 package pember.qq.petugasunramhub.ui.home
 
+import android.graphics.BitmapFactory
+import java.net.URL
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,19 +11,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import pember.qq.petugasunramhub.R
 
-// Model data sederhana untuk laporan barang hilang
-data class CivitasLostItem(
-    val id: Int,
-    val title: String,
-    val date: String,
-    val timeAgo: String,
-    val imageResId: Int // Menyimpan ID drawable untuk gambar kunci/barang
-)
-
 class CivitasLostItemAdapter(
-    private val lostItems: List<CivitasLostItem>,
+    private var lostItems: List<CivitasLostItem>,
     private val onDetailClick: (CivitasLostItem) -> Unit
 ) : RecyclerView.Adapter<CivitasLostItemAdapter.LostItemViewHolder>() {
+
+    fun updateData(newLostItems: List<CivitasLostItem>) {
+        lostItems = newLostItems
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LostItemViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -44,11 +42,28 @@ class CivitasLostItemAdapter(
         fun bind(item: CivitasLostItem, onDetailClick: (CivitasLostItem) -> Unit) {
             tvTitle.text = item.title
             tvTime.text = "${item.date}\n${item.timeAgo}"
+            imgItem.setImageDrawable(null)
+            imgItem.setBackgroundColor(android.graphics.Color.parseColor("#CCCCCC"))
+            imgItem.tag = item.imageUrl
 
-            // Set gambar barang hilang
-            if (item.imageResId != 0) {
-                imgItem.setImageResource(item.imageResId)
-                imgItem.setBackgroundResource(0) // Menghapus background placeholder abu-abu
+            val imageUrl = item.imageUrl
+            if (!imageUrl.isNullOrBlank()) {
+                Thread {
+                    val bitmap = try {
+                        URL(imageUrl).openStream().use { inputStream ->
+                            BitmapFactory.decodeStream(inputStream)
+                        }
+                    } catch (_: Exception) {
+                        null
+                    }
+
+                    imgItem.post {
+                        if (imgItem.tag == imageUrl && bitmap != null) {
+                            imgItem.setImageBitmap(bitmap)
+                            imgItem.setBackgroundResource(0)
+                        }
+                    }
+                }.start()
             }
 
             btnSelengkapnya.setOnClickListener {

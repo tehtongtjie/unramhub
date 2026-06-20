@@ -8,9 +8,11 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import pember.qq.petugasunramhub.databinding.CivitasFormLaporanBinding
 import pember.qq.petugasunramhub.utils.SessionManager
+import java.io.File
 import java.util.Calendar
 import java.util.Locale
 
@@ -18,6 +20,7 @@ class FormLaporanActivity : AppCompatActivity() {
 
     private lateinit var binding: CivitasFormLaporanBinding
     private lateinit var sessionManager: SessionManager
+    private val viewModel: FormLaporanViewModel by viewModels()
     private var categoryId: Int = -1
     private var isAnonymous: Boolean = false
     private var selectedImageUri: Uri? = null
@@ -49,8 +52,11 @@ class FormLaporanActivity : AppCompatActivity() {
 
         setupSpinners()
         autofillUserData()
-        applyCategoryVisibility()
         setupListeners()
+        observeViewModel()
+
+        // Fetch category form configuration asynchronously
+        viewModel.loadConfiguration(categoryId)
     }
 
     private fun setupSpinners() {
@@ -69,7 +75,7 @@ class FormLaporanActivity : AppCompatActivity() {
         }
     }
 
-    private fun applyCategoryVisibility() {
+    private fun applyConfiguration(config: CategoryFormConfig) {
         // Handle anonymity
         if (isAnonymous) {
             binding.tvLabelIdentitasPelapor.visibility = View.GONE
@@ -81,40 +87,11 @@ class FormLaporanActivity : AppCompatActivity() {
             binding.etNimPelapor.visibility = View.VISIBLE
         }
 
-        // Handle category specific configurations
-        // categoryId: 1 = Kekerasan/Pelecehan, 2 = Kerusakan Fasilitas, 3 = Bencana/Darurat, 4 = Barang Hilang/Temuan, 5 = Lainnya
-        when (categoryId) {
-            1 -> {
-                binding.spinJenisPelapor.visibility = View.VISIBLE
-                binding.layoutWaktuTanggal.visibility = View.VISIBLE
-                binding.etLokasi.visibility = View.VISIBLE
-                binding.tvUploadBukti.visibility = View.VISIBLE
-            }
-            2 -> {
-                binding.spinJenisPelapor.visibility = View.GONE
-                binding.layoutWaktuTanggal.visibility = View.GONE
-                binding.etLokasi.visibility = View.VISIBLE
-                binding.tvUploadBukti.visibility = View.VISIBLE
-            }
-            3 -> {
-                binding.spinJenisPelapor.visibility = View.GONE
-                binding.layoutWaktuTanggal.visibility = View.GONE
-                binding.etLokasi.visibility = View.VISIBLE
-                binding.tvUploadBukti.visibility = View.GONE
-            }
-            4 -> {
-                binding.spinJenisPelapor.visibility = View.GONE
-                binding.layoutWaktuTanggal.visibility = View.VISIBLE
-                binding.etLokasi.visibility = View.VISIBLE
-                binding.tvUploadBukti.visibility = View.VISIBLE
-            }
-            else -> {
-                binding.spinJenisPelapor.visibility = View.GONE
-                binding.layoutWaktuTanggal.visibility = View.VISIBLE
-                binding.etLokasi.visibility = View.VISIBLE
-                binding.tvUploadBukti.visibility = View.VISIBLE
-            }
-        }
+        // Apply dynamic visibility based on configuration
+        binding.spinJenisPelapor.visibility = if (config.showReporterType) View.VISIBLE else View.GONE
+        binding.layoutWaktuTanggal.visibility = if (config.showDateTime) View.VISIBLE else View.GONE
+        binding.etLokasi.visibility = if (config.showLocation) View.VISIBLE else View.GONE
+        binding.tvUploadBukti.visibility = if (config.showEvidence) View.VISIBLE else View.GONE
     }
 
     private fun setupListeners() {
@@ -160,71 +137,114 @@ class FormLaporanActivity : AppCompatActivity() {
         }
 
         binding.btnKirimLaporan.setOnClickListener {
-            validateAndSubmit()
+            triggerReportSubmission()
         }
     }
 
-    private fun validateAndSubmit() {
-        val deskripsi = binding.etDeskripsi.text.toString().trim()
-        val lokasi = binding.etLokasi.text.toString().trim()
-        val namaPelapor = binding.etNamaPelapor.text.toString().trim()
-        val nimPelapor = binding.etNimPelapor.text.toString().trim()
-        val kontak = binding.etKontak.text.toString().trim()
+    private fun triggerReportSubmission() {
+        val input = FormInput(
+            description = binding.etDeskripsi.text.toString().trim(),
+            location = binding.etLokasi.text.toString().trim(),
+            reporterName = binding.etNamaPelapor.text.toString().trim(),
+            reporterNim = binding.etNimPelapor.text.toString().trim(),
+            contact = binding.etKontak.text.toString().trim(),
+            reporterTypePosition = binding.spinJenisPelapor.selectedItemPosition,
+            reporterTypeSelectedValue = binding.spinJenisPelapor.selectedItem?.toString() ?: "",
+            eventTime = binding.etWaktu.text.toString().trim(),
+            eventDate = binding.etTanggal.text.toString().trim()
+        )
 
-        var isValid = true
-
-        // Validate spinJenisPelapor (only if visible)
-        if (binding.spinJenisPelapor.visibility == View.VISIBLE) {
-            val posJenisPelapor = binding.spinJenisPelapor.selectedItemPosition
-            if (posJenisPelapor == 0) {
-                Toast.makeText(this, "Pilih Jenis Pelapor!", Toast.LENGTH_SHORT).show()
-                isValid = false
+        var imageFile: File? = null
+        val uri = selectedImageUri
+        if (uri != null) {
+            try {
+                imageFile = getFileFromUri(this, uri)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Gagal memproses gambar bukti: ${e.message}", Toast.LENGTH_SHORT).show()
                 return
             }
         }
 
-        // Validate Description (always required)
-        if (deskripsi.isEmpty()) {
-            binding.etDeskripsi.error = "Deskripsi kejadian tidak boleh kosong"
-            binding.etDeskripsi.requestFocus()
-            isValid = false
-            return
+        val categoryName = intent.getStringExtra("CATEGORY_NAME") ?: "Form Laporan"
+        val userId = sessionManager.getUserId()
+
+        viewModel.submitReport(
+            input = input,
+            categoryId = categoryId,
+            categoryName = categoryName,
+            isAnonymous = isAnonymous,
+            imageFile = imageFile,
+            userId = userId
+        )
+    }
+
+    private fun observeViewModel() {
+        // 1. Observe dynamic configurations
+        viewModel.formConfig.observe(this) { config ->
+            applyConfiguration(config)
         }
 
-        // Validate Location (only if visible)
-        if (binding.etLokasi.visibility == View.VISIBLE && lokasi.isEmpty()) {
-            binding.etLokasi.error = "Lokasi kejadian tidak boleh kosong"
-            binding.etLokasi.requestFocus()
-            isValid = false
-            return
-        }
-
-        // Validate Reporter Identity (only if visible / not anonymous)
-        if (binding.etNamaPelapor.visibility == View.VISIBLE) {
-            if (namaPelapor.isEmpty()) {
-                binding.etNamaPelapor.error = "Nama pelapor tidak boleh kosong"
-                binding.etNamaPelapor.requestFocus()
-                isValid = false
-                return
+        // 2. Observe overall Screen UI Loading state
+        viewModel.uiState.observe(this) { state ->
+            when (state) {
+                is FormUiState.LoadingConfig -> {
+                    binding.btnKirimLaporan.isEnabled = false
+                    binding.btnKirimLaporan.text = "MEMUAT KONFIGURASI..."
+                }
+                is FormUiState.Ready -> {
+                    binding.btnKirimLaporan.isEnabled = true
+                    binding.btnKirimLaporan.text = "KIRIM LAPORAN"
+                }
+                is FormUiState.Error -> {
+                    Toast.makeText(this, "Gagal memuat: ${state.error.message}", Toast.LENGTH_LONG).show()
+                    binding.btnKirimLaporan.isEnabled = true
+                    binding.btnKirimLaporan.text = "KIRIM LAPORAN"
+                }
             }
-            if (nimPelapor.isEmpty()) {
-                binding.etNimPelapor.error = "NIM pelapor tidak boleh kosong"
-                binding.etNimPelapor.requestFocus()
-                isValid = false
-                return
+        }
+
+        // 3. Observe report submission outcomes
+        viewModel.submissionState.observe(this) { state ->
+            when (state) {
+                is FormSubmissionState.Idle -> {
+                    // Do nothing
+                }
+                is FormSubmissionState.Loading -> {
+                    binding.btnKirimLaporan.isEnabled = false
+                    binding.btnKirimLaporan.text = "MENGIRIM..."
+                    Toast.makeText(this, "Sedang mengirim laporan...", Toast.LENGTH_SHORT).show()
+                }
+                is FormSubmissionState.ValidationError -> {
+                    Toast.makeText(this, state.error.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetSubmissionState()
+                }
+                is FormSubmissionState.UploadError -> {
+                    Toast.makeText(this, state.error.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetSubmissionState()
+                    finish()
+                }
+                is FormSubmissionState.NetworkError -> {
+                    Toast.makeText(this, state.error.message, Toast.LENGTH_LONG).show()
+                    binding.btnKirimLaporan.isEnabled = true
+                    binding.btnKirimLaporan.text = "KIRIM LAPORAN"
+                    viewModel.resetSubmissionState()
+                }
+                is FormSubmissionState.Success -> {
+                    Toast.makeText(this, "Laporan berhasil dikirim!", Toast.LENGTH_LONG).show()
+                    viewModel.resetSubmissionState()
+                    finish()
+                }
             }
         }
+    }
 
-        // Validate Contact (always required)
-        if (kontak.isEmpty()) {
-            binding.etKontak.error = "Kontak tidak boleh kosong"
-            binding.etKontak.requestFocus()
-            isValid = false
-            return
+    private fun getFileFromUri(context: android.content.Context, uri: Uri): File {
+        val tempFile = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            tempFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
         }
-
-        if (isValid) {
-            Toast.makeText(this, "Laporan berhasil divalidasi dan siap dikirim!", Toast.LENGTH_LONG).show()
-        }
+        return tempFile
     }
 }

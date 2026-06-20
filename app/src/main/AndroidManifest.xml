@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="pember.qq.petugasunramhub"> <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
@@ -29,7 +31,15 @@
 
         <activity android:name=".ui.home.CivitasHomeActivity" />
 
+        <activity android:name=".ui.home.PanicActivity" />
+
         <activity android:name=".ui.form.FormLaporanActivity" />
+
+        <activity android:name=".ui.home.ListLaporanActivity" />
+
+        <activity android:name=".ui.home.LostItemsActivity" />
+
+        <activity android:name=".ui.home.DetailLaporanActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

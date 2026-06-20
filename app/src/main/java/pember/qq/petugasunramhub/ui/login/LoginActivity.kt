@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
                 }
                 is LoginState.Error -> {
                     // Tampilkan error langsung di bawah field password atau field yang relevan
-                    binding.tilPassword.error = state.message
+                    binding.tilPassword.error = state.error.message
                 }
                 else -> { }
             }
