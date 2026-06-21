@@ -23,3 +23,9 @@ sealed interface RecentReportUiState {
     object Empty : RecentReportUiState
     data class Error(val error: AppError) : RecentReportUiState
 }
+
+sealed interface ProfilePhotoUiState {
+    object Loading : ProfilePhotoUiState
+    data class Success(val url: String?) : ProfilePhotoUiState
+    data class Error(val error: AppError) : ProfilePhotoUiState
+}

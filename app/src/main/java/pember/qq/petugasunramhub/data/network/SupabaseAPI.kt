@@ -6,6 +6,7 @@ import pember.qq.petugasunramhub.data.model.Report
 import pember.qq.petugasunramhub.data.model.ReportRequest
 import pember.qq.petugasunramhub.data.model.User
 import pember.qq.petugasunramhub.data.model.ReportMediaRequest
+import pember.qq.petugasunramhub.data.model.UserProfilePhotoDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -74,4 +75,23 @@ interface SupabaseApi {
         @Query("order") order: String = "created_at.desc",
         @Query("limit") limit: Int = 10
     ): List<LostItemReportDto>
+
+    @GET("user_profile_photos")
+    suspend fun getUserProfilePhoto(
+        @Query("user_id") userId: String,
+        @Query("select") select: String = "id,user_id,file_path"
+    ): List<UserProfilePhotoDto>
+
+    @Headers("Prefer: resolution=merge-duplicates")
+    @POST("user_profile_photos")
+    suspend fun upsertUserProfilePhoto(
+        @Body body: Map<String, @JvmSuppressWildcards Any>,
+        @Query("on_conflict") onConflict: String = "user_id"
+    ): retrofit2.Response<Unit>
+
+    @PATCH("users")
+    suspend fun updateProfile(
+        @Query("id") idFilter: String,
+        @Body body: Map<String, String>
+    ): retrofit2.Response<Unit>
 }

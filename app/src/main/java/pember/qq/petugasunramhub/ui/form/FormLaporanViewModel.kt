@@ -27,13 +27,13 @@ sealed interface FormSubmissionState {
 }
 
 data class FormInput(
+    val title: String,
     val description: String,
     val location: String,
     val reporterName: String,
     val reporterNim: String,
     val contact: String,
-    val reporterTypePosition: Int,
-    val reporterTypeSelectedValue: String,
+    val reporterType: String?,
     val eventTime: String,
     val eventDate: String
 )
@@ -107,7 +107,7 @@ class FormLaporanViewModel(
             }
 
             try {
-                val title = "$categoryName - ${if (isAnonymous) "Anonim" else input.reporterName}"
+                val title = input.title
                 
                 // Parse coordinates
                 var lat: Double? = null
@@ -136,7 +136,7 @@ class FormLaporanViewModel(
                     isAnonymous = isAnonymous,
                     incidentLocation = input.location,
                     incidentDatetime = combinedDateTime,
-                    reporterType = if (config.showReporterType) input.reporterTypeSelectedValue else null
+                    reporterType = if (!isAnonymous) input.reporterType else null
                 )
 
                 createResult.fold(
@@ -223,8 +223,8 @@ class FormLaporanViewModel(
     }
 
     private fun validateInput(input: FormInput, config: CategoryFormConfig, isAnonymous: Boolean): String? {
-        if (config.showReporterType && input.reporterTypePosition == 0) {
-            return "Pilih Jenis Pelapor!"
+        if (input.title.isEmpty()) {
+            return "Judul laporan tidak boleh kosong"
         }
 
         if (input.description.isEmpty()) {

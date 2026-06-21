@@ -43,11 +43,11 @@ class CategoryUiMapper(
 
     private fun displayIcon(category: HomeCategory): Int {
         return when (classifier.classify(category)) {
-            HomeCategoryKind.VIOLENCE_AND_HARASSMENT -> R.drawable.ic_rounded_gavel
-            HomeCategoryKind.FACILITY_DAMAGE -> R.drawable.ic_rounded_build
-            HomeCategoryKind.EMERGENCY -> R.drawable.ic_rounded_warning
-            HomeCategoryKind.LOST_AND_FOUND -> R.drawable.ic_rounded_find_in_page
-            HomeCategoryKind.OTHER -> R.drawable.ic_rounded_more_horiz
+            HomeCategoryKind.VIOLENCE_AND_HARASSMENT -> R.drawable.ic_kekerasan
+            HomeCategoryKind.FACILITY_DAMAGE -> R.drawable.ic_kerusakan
+            HomeCategoryKind.EMERGENCY -> R.drawable.ic_kebakaran
+            HomeCategoryKind.LOST_AND_FOUND -> R.drawable.ic_barang_hilang
+            HomeCategoryKind.OTHER -> R.drawable.ic_lainnya
         }
     }
 }

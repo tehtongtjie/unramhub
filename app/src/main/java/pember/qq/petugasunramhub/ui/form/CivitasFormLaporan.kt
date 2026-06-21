@@ -15,6 +15,16 @@ import pember.qq.petugasunramhub.utils.SessionManager
 import java.io.File
 import java.util.Calendar
 import java.util.Locale
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import pember.qq.petugasunramhub.utils.location.GPSLocationProvider
+import pember.qq.petugasunramhub.utils.location.LocationProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 class FormLaporanActivity : AppCompatActivity() {
 
@@ -45,6 +55,19 @@ class FormLaporanActivity : AppCompatActivity() {
         }
     }
 
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        if (granted) {
+            fetchGpsLocation()
+        } else {
+            Toast.makeText(this, "Izin lokasi ditolak. Gagal mendeteksi lokasi otomatis.", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CivitasFormLaporanBinding.inflate(layoutInflater)
@@ -61,21 +84,12 @@ class FormLaporanActivity : AppCompatActivity() {
         title = categoryName
         supportActionBar?.title = categoryName
 
-        setupSpinners()
         autofillUserData()
         setupListeners()
         observeViewModel()
 
         // Fetch category form configuration asynchronously
         viewModel.loadConfiguration(categoryId)
-    }
-
-    private fun setupSpinners() {
-        val jenisPelapor = arrayOf("Silahkan Pilih Jenis Pelapor", "Mahasiswa", "Dosen", "Staff", "Lainnya")
-        binding.spinJenisPelapor.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, jenisPelapor)
-        
-        // Hide spinJenisKejadian as category is chosen from home screen
-        binding.spinJenisKejadian.visibility = View.GONE
     }
 
     private fun autofillUserData() {
@@ -101,7 +115,6 @@ class FormLaporanActivity : AppCompatActivity() {
         }
 
         // Apply dynamic visibility based on configuration
-        binding.spinJenisPelapor.visibility = if (config.showReporterType) View.VISIBLE else View.GONE
         binding.layoutWaktuTanggal.visibility = if (config.showDateTime) View.VISIBLE else View.GONE
         binding.etLokasi.visibility = if (config.showLocation) View.VISIBLE else View.GONE
         binding.tvUploadBukti.visibility = if (config.showEvidence) View.VISIBLE else View.GONE
@@ -137,11 +150,16 @@ class FormLaporanActivity : AppCompatActivity() {
             datePickerDialog.show()
         }
 
-        // 3. Location Picker (Mock GPS coordinates on Click)
-        binding.etLokasi.setOnClickListener {
-            // Simulasi deteksi GPS otomatis
-            binding.etLokasi.setText("Gedung FT Unram (-8.5833, 116.0969)")
-            Toast.makeText(this, "Lokasi terdeteksi otomatis via GPS", Toast.LENGTH_SHORT).show()
+        // 3. Location Picker (Detect GPS coordinates on Click drawableEnd)
+        binding.etLokasi.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_UP) {
+                val drawableEnd = binding.etLokasi.compoundDrawables[2]
+                if (drawableEnd != null && event.rawX >= (binding.etLokasi.right - binding.etLokasi.paddingEnd - drawableEnd.bounds.width())) {
+                    checkLocationPermissionAndFetch()
+                    return@setOnTouchListener true
+                }
+            }
+            false
         }
 
         // 4. Evidence Picker
@@ -155,14 +173,15 @@ class FormLaporanActivity : AppCompatActivity() {
     }
 
     private fun triggerReportSubmission() {
+        val userRole = if (isAnonymous) null else sessionManager.getUser()?.role
         val input = FormInput(
+            title = binding.etJudulLaporan.text.toString().trim(),
             description = binding.etDeskripsi.text.toString().trim(),
             location = binding.etLokasi.text.toString().trim(),
             reporterName = binding.etNamaPelapor.text.toString().trim(),
             reporterNim = binding.etNimPelapor.text.toString().trim(),
             contact = binding.etKontak.text.toString().trim(),
-            reporterTypePosition = binding.spinJenisPelapor.selectedItemPosition,
-            reporterTypeSelectedValue = binding.spinJenisPelapor.selectedItem?.toString() ?: "",
+            reporterType = userRole,
             eventTime = binding.etWaktu.text.toString().trim(),
             eventDate = binding.etTanggal.text.toString().trim()
         )
@@ -304,5 +323,67 @@ class FormLaporanActivity : AppCompatActivity() {
         
         bitmap.recycle()
         return tempFile
+    }
+
+    private fun checkLocationPermissionAndFetch() {
+        val fineGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            fetchGpsLocation()
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    private fun fetchGpsLocation() {
+        val locationProvider: LocationProvider = GPSLocationProvider(this)
+        if (!locationProvider.isLocationEnabled()) {
+            showGpsTurnOnDialog()
+            return
+        }
+
+        Toast.makeText(this, "Mendeteksi lokasi GPS...", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            locationProvider.getCurrentLocation().fold(
+                onSuccess = { locationWithProvider ->
+                    val lat = locationWithProvider.location.latitude
+                    val lon = locationWithProvider.location.longitude
+                    val providerName = locationWithProvider.provider
+                    binding.etLokasi.setText("Gedung FT Unram ($lat, $lon)")
+                    Toast.makeText(this@FormLaporanActivity, "Lokasi terdeteksi otomatis via $providerName", Toast.LENGTH_SHORT).show()
+                },
+                onFailure = { error ->
+                    Toast.makeText(this@FormLaporanActivity, "Gagal mendapatkan lokasi: ${error.message}", Toast.LENGTH_LONG).show()
+                }
+            )
+        }
+    }
+
+    private fun showGpsTurnOnDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Aktifkan Layanan GPS")
+            .setMessage("Layanan lokasi/GPS di perangkat Anda belum aktif. Aktifkan GPS untuk mendeteksi lokasi kejadian secara otomatis.")
+            .setPositiveButton("Aktifkan") { dialog, _ ->
+                val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }

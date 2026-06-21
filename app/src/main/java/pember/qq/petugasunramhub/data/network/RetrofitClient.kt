@@ -10,6 +10,9 @@ object RetrofitClient {
 
     private val httpClient: OkHttpClient by lazy {
         val builder = OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
         
         // Add Logging Interceptor safely
         try {

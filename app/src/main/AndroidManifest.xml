@@ -40,6 +40,7 @@
         <activity android:name=".ui.home.LostItemsActivity" />
 
         <activity android:name=".ui.home.DetailLaporanActivity" />
+        <activity android:name=".ui.home.EditProfileActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

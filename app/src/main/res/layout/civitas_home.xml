@@ -19,17 +19,28 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp">
 
-            <ImageView
-                android:id="@+id/imgCivitasProfile"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCivitasProfile"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:background="#CCCCCC"
-                android:src="@drawable/ic_launcher_background" />
+                app:cardCornerRadius="25dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#E2E8F0">
+
+                <ImageView
+                    android:id="@+id/imgCivitasProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_rounded_person"
+                    app:tint="#A0AEC0"
+                    android:scaleType="centerCrop" />
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/imgCivitasProfile"
+                android:layout_toEndOf="@id/cardCivitasProfile"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="12dp"
                 android:orientation="vertical">

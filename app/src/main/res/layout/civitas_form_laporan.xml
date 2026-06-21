@@ -12,21 +12,18 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <Spinner
-            android:id="@+id/spinJenisPelapor"
+        <EditText
+            android:id="@+id/etJudulLaporan"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
-            android:paddingHorizontal="12dp" />
-
-        <Spinner
-            android:id="@+id/spinJenisKejadian"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_input_cyan"
-            android:paddingHorizontal="12dp" />
+            android:hint="Judul Laporan"
+            android:paddingHorizontal="12dp"
+            android:textColor="#000000"
+            android:textColorHint="#00838F"
+            android:textSize="16sp"
+            android:inputType="text" />
 
         <EditText
             android:id="@+id/etDeskripsi"

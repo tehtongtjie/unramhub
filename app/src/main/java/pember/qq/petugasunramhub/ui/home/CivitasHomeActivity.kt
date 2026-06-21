@@ -10,6 +10,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import pember.qq.petugasunramhub.data.model.Report
 import pember.qq.petugasunramhub.databinding.CivitasHomeBinding
 import pember.qq.petugasunramhub.utils.SessionManager
+import pember.qq.petugasunramhub.R
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.URL
+import android.graphics.BitmapFactory
 
 class CivitasHomeActivity : AppCompatActivity() {
     private lateinit var binding: CivitasHomeBinding
@@ -78,6 +85,11 @@ class CivitasHomeActivity : AppCompatActivity() {
         binding.tvCivitasLihatSemuaLostItems.setOnClickListener {
             startActivitySafely(Intent(this, LostItemsActivity::class.java))
         }
+
+        // Aksi Klik Foto Profil untuk Edit Profil
+        binding.imgCivitasProfile.setOnClickListener {
+            startActivitySafely(Intent(this, EditProfileActivity::class.java))
+        }
     }
 
     private fun setupCategoriesRecyclerView() {
@@ -90,52 +102,77 @@ class CivitasHomeActivity : AppCompatActivity() {
         binding.rvCivitasCategories.adapter = categoryAdapter
     }
 
-    private fun showCategorySelectionDialog(categories: List<CivitasCategory>) {
-        val categoryNames = categories.map { it.label.replace("\n", " ") }.toTypedArray()
+    private fun showCustomSelectionDialog(title: String, options: List<CivitasDialogOption>) {
+        val dialog = android.app.Dialog(this)
+        dialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
 
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Pilih Kategori Laporan")
-        builder.setItems(categoryNames) { dialog, which ->
-            val selectedCategory = categories[which]
-            showReportingTypeDialog(selectedCategory)
+        val dialogBinding = pember.qq.petugasunramhub.databinding.DialogCustomSelectionBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        // Make window background transparent to support CardView corner radius
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Force layout width to match parent with horizontal margins
+        dialog.window?.setLayout(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        dialogBinding.tvDialogTitle.text = title
+        dialogBinding.btnDialogClose.setOnClickListener {
             dialog.dismiss()
         }
-        builder.setNegativeButton("Batal") { dialog, _ ->
+
+        dialogBinding.rvDialogOptions.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        dialogBinding.rvDialogOptions.adapter = CivitasDialogOptionAdapter(options) {
             dialog.dismiss()
         }
-        builder.create().show()
+
+        dialog.show()
+    }
+
+    private fun showCategorySelectionDialog(categories: List<CivitasCategory>) {
+        val options = categories.map { category ->
+            CivitasDialogOption(
+                label = category.label.replace("\n", " "),
+                iconResId = category.iconResId,
+                action = {
+                    showReportingTypeDialog(category)
+                }
+            )
+        }
+        showCustomSelectionDialog("Pilih Kategori Laporan", options)
     }
 
     private fun showReportingTypeDialog(category: CivitasCategory) {
-        val options = arrayOf("Laporkan sebagai Anonim", "Laporkan sebagai User Biasa")
         val cleanCategoryName = category.label.replace("\n", " ")
-
-        // Pakai AppCompat AlertDialog yang tahan banting
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-
-        // Gabungin info kategori ke Title, JANGAN pakai .setMessage()
-        builder.setTitle("Pilih Metode Pelaporan\n(Kategori: $cleanCategoryName)")
-
-        // setItems dijamin muncul sekarang
-        builder.setItems(options) { dialog, which ->
-            // Siapkan intent menuju form laporan yang ada di folder ui.form
-            val intentKeForm = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
-                putExtra("CATEGORY_ID", category.id)
-                putExtra("CATEGORY_NAME", cleanCategoryName)
-
-                // index 0 = Anonim (true), index 1 = User Biasa (false)
-                putExtra("EXTRA_IS_ANONYMOUS", which == 0)
-            }
-
-            startActivitySafely(intentKeForm)
-            dialog.dismiss()
-        }
-
-        builder.setNegativeButton("Batal") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        builder.create().show()
+        val options = listOf(
+            CivitasDialogOption(
+                label = "Anonim",
+                iconResId = R.drawable.ic_rounded_anonymous,
+                action = {
+                    val intentKeForm = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
+                        putExtra("CATEGORY_ID", category.id)
+                        putExtra("CATEGORY_NAME", cleanCategoryName)
+                        putExtra("EXTRA_IS_ANONYMOUS", true)
+                    }
+                    startActivitySafely(intentKeForm)
+                }
+            ),
+            CivitasDialogOption(
+                label = "User biasa",
+                iconResId = R.drawable.ic_rounded_person,
+                action = {
+                    val intentKeForm = Intent(this, pember.qq.petugasunramhub.ui.form.FormLaporanActivity::class.java).apply {
+                        putExtra("CATEGORY_ID", category.id)
+                        putExtra("CATEGORY_NAME", cleanCategoryName)
+                        putExtra("EXTRA_IS_ANONYMOUS", false)
+                    }
+                    startActivitySafely(intentKeForm)
+                }
+            )
+        )
+        showCustomSelectionDialog("Pilih jenis pelapor disini", options)
     }
 
     private fun setupLostItemsRecyclerView() {
@@ -205,6 +242,17 @@ class CivitasHomeActivity : AppCompatActivity() {
                 is LostItemUiState.Error -> showLostItemStatus(state.error.message)
             }
         }
+
+        viewModel.profilePhotoState.observe(this) { state ->
+            when (state) {
+                is ProfilePhotoUiState.Success -> {
+                    state.url?.let { url ->
+                        loadProfileImage(url)
+                    }
+                }
+                else -> { /* Silent loading / no action on load error */ }
+            }
+        }
     }
 
     private fun showCategoryStatus(message: String) {
@@ -241,6 +289,25 @@ class CivitasHomeActivity : AppCompatActivity() {
             Toast.makeText(this, "Halaman tujuan tidak ditemukan.", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(this, "Gagal membuka halaman tujuan.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadProfileImage(url: String) {
+        lifecycleScope.launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                try {
+                    URL(url).openStream().use { input ->
+                        BitmapFactory.decodeStream(input)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("CivitasHomeActivity", "Gagal memuat foto profil dari URL: ${e.message}", e)
+                    null
+                }
+            }
+            if (bitmap != null) {
+                binding.imgCivitasProfile.imageTintList = null // Clear placeholder tint to show actual profile photo colors
+                binding.imgCivitasProfile.setImageBitmap(bitmap)
+            }
         }
     }
 }

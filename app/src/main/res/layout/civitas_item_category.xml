@@ -10,7 +10,7 @@
         android:id="@+id/viewCivitasCategoryIcon"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="@drawable/ic_rounded_more_horiz" />
+        android:background="@drawable/ic_lainnya" />
 
     <TextView
         android:id="@+id/tvCivitasCategoryLabel"
