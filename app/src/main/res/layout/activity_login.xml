@@ -39,14 +39,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E2E8F0">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="32dp">
+                    android:padding="24dp">
 
                     <ImageView
                         android:layout_width="120dp"
@@ -82,7 +84,9 @@
                         android:layout_marginBottom="16dp"
                         android:hint="Nama Akun"
                         app:boxStrokeColor="@color/selector_input_color"
-                        app:hintTextColor="@color/selector_input_color">
+                        app:hintTextColor="@color/selector_input_color"
+                        app:boxStrokeWidth="1.5dp"
+                        app:boxStrokeWidthFocused="1.5dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNimNip"
@@ -101,7 +105,9 @@
                         app:passwordToggleEnabled="true"
                         app:passwordToggleTint="@color/selector_input_color"
                         app:boxStrokeColor="@color/selector_input_color"
-                        app:hintTextColor="@color/selector_input_color">
+                        app:hintTextColor="@color/selector_input_color"
+                        app:boxStrokeWidth="1.5dp"
+                        app:boxStrokeWidthFocused="1.5dp">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPassword"
@@ -142,7 +148,7 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="#2294f2"
-                        app:cornerRadius="12dp" />
+                        app:cornerRadius="16dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

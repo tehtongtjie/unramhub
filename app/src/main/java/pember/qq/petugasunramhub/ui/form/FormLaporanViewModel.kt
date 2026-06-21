@@ -73,7 +73,7 @@ class FormLaporanViewModel(
         categoryId: Int,
         categoryName: String,
         isAnonymous: Boolean,
-        imageFile: File?,
+        imageFiles: List<File>,
         userId: Long
     ) {
         val config = _formConfig.value
@@ -97,6 +97,15 @@ class FormLaporanViewModel(
 
         // 2. Submission Workflow
         viewModelScope.launch {
+            // Clean-up helper for temp files
+            fun cleanUpTempFiles() {
+                for (file in imageFiles) {
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                }
+            }
+
             try {
                 val title = "$categoryName - ${if (isAnonymous) "Anonim" else input.reporterName}"
                 
@@ -132,46 +141,54 @@ class FormLaporanViewModel(
 
                 createResult.fold(
                     onSuccess = { report ->
-                        if (imageFile != null) {
-                            val uploadResult = reportRepository.uploadReportMedia(imageFile, report.id)
-                            
-                            // Clean up temp file
-                            if (imageFile.exists()) {
-                                imageFile.delete()
+                        if (imageFiles.isNotEmpty()) {
+                            var anyUploadFailed = false
+                            var uploadErrorDetail: Throwable? = null
+
+                            for (file in imageFiles) {
+                                val uploadResult = reportRepository.uploadReportMedia(file, report.id)
+                                uploadResult.fold(
+                                    onSuccess = { publicUrl ->
+                                        val mediaResult = reportRepository.insertReportMedia(report.id, publicUrl)
+                                        mediaResult.fold(
+                                            onSuccess = {
+                                                // Success for this file, continue
+                                            },
+                                            onFailure = { mediaError ->
+                                                anyUploadFailed = true
+                                                uploadErrorDetail = mediaError
+                                            }
+                                        )
+                                    },
+                                    onFailure = { uploadError ->
+                                        anyUploadFailed = true
+                                        uploadErrorDetail = uploadError
+                                    }
+                                )
+                                if (anyUploadFailed) break
                             }
 
-                            uploadResult.fold(
-                                onSuccess = { publicUrl ->
-                                    val mediaResult = reportRepository.insertReportMedia(report.id, publicUrl)
-                                    mediaResult.fold(
-                                        onSuccess = {
-                                            _submissionState.value = FormSubmissionState.Success
-                                        },
-                                        onFailure = { mediaError ->
-                                            val appError = if (mediaError is AppException) mediaError.error else ErrorMapper.map(mediaError)
-                                            _submissionState.value = FormSubmissionState.UploadError(appError)
-                                        }
-                                    )
-                                },
-                                onFailure = { uploadError ->
-                                    val appError = if (uploadError is AppException) uploadError.error else ErrorMapper.map(uploadError)
-                                    _submissionState.value = FormSubmissionState.UploadError(appError)
-                                }
-                            )
+                            cleanUpTempFiles()
+
+                            if (anyUploadFailed) {
+                                val errorMsg = uploadErrorDetail
+                                val appError = if (errorMsg is AppException) errorMsg.error else ErrorMapper.map(errorMsg ?: Exception("Gagal mengupload beberapa bukti"))
+                                _submissionState.value = FormSubmissionState.UploadError(appError)
+                            } else {
+                                _submissionState.value = FormSubmissionState.Success
+                            }
                         } else {
                             _submissionState.value = FormSubmissionState.Success
                         }
                     },
                     onFailure = { createError ->
+                        cleanUpTempFiles()
                         val appError = if (createError is AppException) createError.error else ErrorMapper.map(createError)
                         _submissionState.value = FormSubmissionState.NetworkError(appError)
                     }
                 )
             } catch (e: Exception) {
-                // Clean up temp file in case of exception
-                if (imageFile != null && imageFile.exists()) {
-                    imageFile.delete()
-                }
+                cleanUpTempFiles()
                 _submissionState.value = FormSubmissionState.NetworkError(ErrorMapper.map(e))
             }
         }
@@ -225,10 +242,9 @@ class FormLaporanViewModel(
             if (input.reporterNim.isEmpty()) {
                 return "NIM pelapor tidak boleh kosong"
             }
-        }
-
-        if (input.contact.isEmpty()) {
-            return "Kontak tidak boleh kosong"
+            if (input.contact.isEmpty()) {
+                return "Kontak tidak boleh kosong"
+            }
         }
 
         return null

@@ -23,7 +23,8 @@ data class DetailReportPresentation(
     val statusLabel: String,
     val statusColorHex: String,
     val statusBgOpacityColorHex: String,
-    val evidenceImageUrl: String?
+    val evidenceImageUrl: String?,
+    val evidenceImageUrls: List<String> = emptyList()
 )
 
 sealed interface DetailUiState {
@@ -121,13 +122,10 @@ class DetailLaporanViewModel(
         val reporterNim = report.users?.nimNip?.let { " ($it)" } ?: ""
         val reporterText = "$reporterName$reporterNim"
 
-        // Image file attachment url
+        // Image file attachment urls
         val mediaList = report.reportMedia
-        val evidenceImageUrl = if (!mediaList.isNullOrEmpty()) {
-            mediaList[0].filePath.takeIf { it.isNotBlank() }
-        } else {
-            null
-        }
+        val evidenceImageUrls = mediaList?.map { resolvePublicUrl(it.filePath) }?.filter { it.isNotBlank() } ?: emptyList()
+        val evidenceImageUrl = evidenceImageUrls.firstOrNull()
 
         return DetailReportPresentation(
             id = report.id,
@@ -141,8 +139,27 @@ class DetailLaporanViewModel(
             statusLabel = statusLabel,
             statusColorHex = statusColorHex,
             statusBgOpacityColorHex = statusBgOpacityColorHex,
-            evidenceImageUrl = evidenceImageUrl
+            evidenceImageUrl = evidenceImageUrl,
+            evidenceImageUrls = evidenceImageUrls
         )
+    }
+
+    private fun resolvePublicUrl(filePath: String): String {
+        if (filePath.startsWith("http://", ignoreCase = true) || filePath.startsWith("https://", ignoreCase = true)) {
+            return filePath
+        }
+        val cleanPath = filePath.trimStart('/')
+        return when {
+            cleanPath.startsWith("task-evidence/", ignoreCase = true) -> {
+                "${pember.qq.petugasunramhub.BuildConfig.SUPABASE_URL}/storage/v1/object/public/$cleanPath"
+            }
+            cleanPath.startsWith("report-media/", ignoreCase = true) -> {
+                "${pember.qq.petugasunramhub.BuildConfig.SUPABASE_URL}/storage/v1/object/public/$cleanPath"
+            }
+            else -> {
+                "${pember.qq.petugasunramhub.BuildConfig.SUPABASE_URL}/storage/v1/object/public/task-evidence/$cleanPath"
+            }
+        }
     }
 
     private fun formatDateTime(isoString: String): String {

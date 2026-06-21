@@ -1,5 +1,6 @@
 package pember.qq.petugasunramhub.ui.home
 
+import pember.qq.petugasunramhub.R
 import pember.qq.petugasunramhub.data.model.HomeCategory
 import pember.qq.petugasunramhub.data.model.HomeCategoryKind
 import pember.qq.petugasunramhub.data.repository.HomeCategoryClassifier
@@ -42,11 +43,11 @@ class CategoryUiMapper(
 
     private fun displayIcon(category: HomeCategory): Int {
         return when (classifier.classify(category)) {
-            HomeCategoryKind.VIOLENCE_AND_HARASSMENT -> android.R.drawable.ic_menu_agenda
-            HomeCategoryKind.FACILITY_DAMAGE -> android.R.drawable.ic_menu_manage
-            HomeCategoryKind.EMERGENCY -> android.R.drawable.ic_dialog_alert
-            HomeCategoryKind.LOST_AND_FOUND -> android.R.drawable.ic_menu_search
-            HomeCategoryKind.OTHER -> android.R.drawable.ic_menu_more
+            HomeCategoryKind.VIOLENCE_AND_HARASSMENT -> R.drawable.ic_rounded_gavel
+            HomeCategoryKind.FACILITY_DAMAGE -> R.drawable.ic_rounded_build
+            HomeCategoryKind.EMERGENCY -> R.drawable.ic_rounded_warning
+            HomeCategoryKind.LOST_AND_FOUND -> R.drawable.ic_rounded_find_in_page
+            HomeCategoryKind.OTHER -> R.drawable.ic_rounded_more_horiz
         }
     }
 }

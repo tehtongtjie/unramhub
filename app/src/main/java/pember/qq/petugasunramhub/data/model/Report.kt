@@ -43,6 +43,12 @@ data class TaskLog(
     @SerializedName("created_at") val createdAt: String
 )
 
+data class ReportMediaRequest(
+    @SerializedName("report_id") val reportId: Long,
+    @SerializedName("file_path") val filePath: String,
+    @SerializedName("file_type") val fileType: String = "image"
+)
+
 data class ReportRequest(
     @SerializedName("user_id") val userId: Long,
     @SerializedName("category_id") val categoryId: Int,

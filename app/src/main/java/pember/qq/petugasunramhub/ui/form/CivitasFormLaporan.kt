@@ -23,14 +23,25 @@ class FormLaporanActivity : AppCompatActivity() {
     private val viewModel: FormLaporanViewModel by viewModels()
     private var categoryId: Int = -1
     private var isAnonymous: Boolean = false
-    private var selectedImageUri: Uri? = null
+    private val selectedImageUris = mutableListOf<Uri>()
 
-    // Register modern ActivityResultLauncher to pick an image
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            selectedImageUri = uri
-            binding.tvUploadBukti.text = "Bukti: Terpilih (Tap untuk ganti)"
-            Toast.makeText(this, "Bukti berhasil dipilih!", Toast.LENGTH_SHORT).show()
+    // Register modern ActivityResultLauncher to pick multiple images
+    private val pickImagesLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        if (uris.isNotEmpty()) {
+            selectedImageUris.clear()
+            selectedImageUris.addAll(uris.take(3))
+            
+            if (selectedImageUris.isEmpty()) {
+                binding.tvUploadBukti.text = "Upload Bukti Pendukung (Opsional)"
+            } else {
+                binding.tvUploadBukti.text = "Bukti: ${selectedImageUris.size} Gambar Terpilih"
+            }
+            
+            if (uris.size > 3) {
+                Toast.makeText(this, "Maksimal 3 gambar yang dapat diupload. Hanya 3 gambar pertama yang dipilih.", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, "${selectedImageUris.size} gambar terpilih!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -81,10 +92,12 @@ class FormLaporanActivity : AppCompatActivity() {
             binding.tvLabelIdentitasPelapor.visibility = View.GONE
             binding.etNamaPelapor.visibility = View.GONE
             binding.etNimPelapor.visibility = View.GONE
+            binding.etKontak.visibility = View.GONE
         } else {
             binding.tvLabelIdentitasPelapor.visibility = View.VISIBLE
             binding.etNamaPelapor.visibility = View.VISIBLE
             binding.etNimPelapor.visibility = View.VISIBLE
+            binding.etKontak.visibility = View.VISIBLE
         }
 
         // Apply dynamic visibility based on configuration
@@ -133,7 +146,7 @@ class FormLaporanActivity : AppCompatActivity() {
 
         // 4. Evidence Picker
         binding.tvUploadBukti.setOnClickListener {
-            pickImageLauncher.launch("image/*")
+            pickImagesLauncher.launch("image/*")
         }
 
         binding.btnKirimLaporan.setOnClickListener {
@@ -154,11 +167,11 @@ class FormLaporanActivity : AppCompatActivity() {
             eventDate = binding.etTanggal.text.toString().trim()
         )
 
-        var imageFile: File? = null
-        val uri = selectedImageUri
-        if (uri != null) {
+        val imageFiles = mutableListOf<File>()
+        for (uri in selectedImageUris) {
             try {
-                imageFile = getFileFromUri(this, uri)
+                val file = getFileFromUri(this, uri)
+                imageFiles.add(file)
             } catch (e: Exception) {
                 Toast.makeText(this, "Gagal memproses gambar bukti: ${e.message}", Toast.LENGTH_SHORT).show()
                 return
@@ -173,7 +186,7 @@ class FormLaporanActivity : AppCompatActivity() {
             categoryId = categoryId,
             categoryName = categoryName,
             isAnonymous = isAnonymous,
-            imageFile = imageFile,
+            imageFiles = imageFiles,
             userId = userId
         )
     }
@@ -240,11 +253,56 @@ class FormLaporanActivity : AppCompatActivity() {
 
     private fun getFileFromUri(context: android.content.Context, uri: Uri): File {
         val tempFile = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-        context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            tempFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
+        
+        // 1. Get raw file size from ContentResolver
+        var rawSize = 0L
+        try {
+            context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { afd ->
+                rawSize = afd.length
             }
+        } catch (e: Exception) {
+            android.util.Log.w("CivitasFormLaporan", "Gagal membaca descriptor ukuran gambar: ${e.message}")
         }
+        
+        val maxBytes = 2 * 1024 * 1024 // 2 MB
+        
+        // 2. If it is already under 2MB, copy the stream directly to preserve quality and speed
+        if (rawSize in 1..maxBytes) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                tempFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            return tempFile
+        }
+        
+        // 3. Otherwise, compress the bitmap to JPEG format recursively to ensure it is under 2MB
+        val bitmap = context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            android.graphics.BitmapFactory.decodeStream(inputStream)
+        } ?: throw Exception("Gagal memecah data gambar")
+        
+        var quality = 90
+        var streamSize = Long.MAX_VALUE
+        while (streamSize > maxBytes && quality > 10) {
+            val bos = java.io.ByteArrayOutputStream()
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, quality, bos)
+            val bytes = bos.toByteArray()
+            streamSize = bytes.size.toLong()
+            if (streamSize <= maxBytes) {
+                tempFile.writeBytes(bytes)
+                break
+            }
+            quality -= 15
+        }
+        
+        // Fallback: write with quality=10
+        if (streamSize > maxBytes) {
+            val bos = java.io.ByteArrayOutputStream()
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 10, bos)
+            tempFile.writeBytes(bos.toByteArray())
+        }
+        
+        bitmap.recycle()
         return tempFile
     }
 }

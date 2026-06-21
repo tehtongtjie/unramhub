@@ -8,31 +8,13 @@ class RemoteCategoryConfigurationProvider(
 ) : CategoryFormConfigurationProvider {
 
     override suspend fun getConfiguration(categoryId: Int): Result<CategoryFormConfig> {
-        return repository.getCategoryConfigurations().fold(
-            onSuccess = { remoteCategories ->
-                val matchingCategory = remoteCategories.find { it.id == categoryId }
-                if (matchingCategory != null &&
-                    matchingCategory.showReporterType != null &&
-                    matchingCategory.showDateTime != null &&
-                    matchingCategory.showLocation != null &&
-                    matchingCategory.showEvidence != null
-                ) {
-                    val config = CategoryFormConfig(
-                        showReporterType = matchingCategory.showReporterType,
-                        showDateTime = matchingCategory.showDateTime,
-                        showLocation = matchingCategory.showLocation,
-                        showEvidence = matchingCategory.showEvidence
-                    )
-                    Result.success(config)
-                } else {
-                    // Falls back to local config if category not found or has null config fields
-                    localFallback.getConfiguration(categoryId)
-                }
-            },
-            onFailure = {
-                // Falls back to local config on server/network failure
-                localFallback.getConfiguration(categoryId)
-            }
+        return Result.success(
+            CategoryFormConfig(
+                showReporterType = true,
+                showDateTime = true,
+                showLocation = true,
+                showEvidence = true
+            )
         )
     }
 }

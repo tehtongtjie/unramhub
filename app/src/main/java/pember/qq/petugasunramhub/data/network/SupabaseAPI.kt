@@ -5,6 +5,7 @@ import pember.qq.petugasunramhub.data.model.LostItemReportDto
 import pember.qq.petugasunramhub.data.model.Report
 import pember.qq.petugasunramhub.data.model.ReportRequest
 import pember.qq.petugasunramhub.data.model.User
+import pember.qq.petugasunramhub.data.model.ReportMediaRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -58,7 +59,7 @@ interface SupabaseApi {
 
     @POST("report_media")
     suspend fun insertReportMedia(
-        @Body body: Map<String, String>
+        @Body body: ReportMediaRequest
     ): retrofit2.Response<Unit>
 
     @GET("reports")

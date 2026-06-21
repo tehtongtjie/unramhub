@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
@@ -9,13 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="24dp">
 
         <Spinner
             android:id="@+id/spinJenisPelapor"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
             android:paddingHorizontal="12dp" />
 
@@ -23,7 +24,7 @@
             android:id="@+id/spinJenisKejadian"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
             android:paddingHorizontal="12dp" />
 
@@ -33,20 +34,20 @@
             android:layout_height="wrap_content"
             android:minLines="4"
             android:gravity="top|start"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
             android:hint="Deskripsi Kejadian\nCeritakan kejadian secara singkat dan jelas"
             android:padding="12dp"
             android:textColor="#000000"
             android:textColorHint="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <LinearLayout
             android:id="@+id/layoutWaktuTanggal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:weightSum="2">
 
             <EditText
@@ -61,7 +62,7 @@
                 android:paddingHorizontal="12dp"
                 android:textColor="#000000"
                 android:textColorHint="#00838F"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/etTanggal"
@@ -75,21 +76,21 @@
                 android:paddingHorizontal="12dp"
                 android:textColor="#000000"
                 android:textColorHint="#00838F"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <EditText
             android:id="@+id/etLokasi"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             android:background="@drawable/bg_input_cyan"
-            android:drawableEnd="@android:drawable/ic_menu_mylocation"
+            android:drawableEnd="@drawable/ic_rounded_my_location"
             android:hint="Lokasi Kejadian"
             android:paddingHorizontal="12dp"
             android:textColor="#000000"
             android:textColorHint="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvLabelIdentitasPelapor"
@@ -104,56 +105,56 @@
             android:id="@+id/etNamaPelapor"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
             android:hint="Nama"
             android:paddingHorizontal="12dp"
             android:textColor="#000000"
             android:textColorHint="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/etNimPelapor"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bg_input_cyan"
             android:hint="NIM"
             android:inputType="textCapCharacters"
             android:paddingHorizontal="12dp"
             android:textColor="#000000"
             android:textColorHint="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/etKontak"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             android:background="@drawable/bg_input_cyan"
             android:hint="Kontak (Whatsapp/Email)"
             android:inputType="phone"
             android:paddingHorizontal="12dp"
             android:textColor="#000000"
             android:textColorHint="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvUploadBukti"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             android:background="@drawable/bg_input_cyan"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
             android:text="Upload Bukti Pendukung (Opsional)"
             android:textColor="#00838F"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             android:text="Kerahasiaan data pelapor dijamin. Laporan akan diproses sesuai prosedur yang berlaku"
             android:textColor="#333333"
             android:textSize="12sp" />
@@ -167,6 +168,7 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
+            app:cornerRadius="16dp"
             android:layout_marginBottom="32dp"/>
 
         <TextView
@@ -175,8 +177,8 @@
             android:text="Hak Cipta © 2026 UnramHUB. Seluruh hak dilindungi."
             android:textAlignment="center"
             android:textColor="#888888"
-            android:textSize="10sp"
-            android:layout_marginBottom="20dp"/>
+            android:textSize="12sp"
+            android:layout_marginBottom="24dp"/>
 
     </LinearLayout>
 </ScrollView>

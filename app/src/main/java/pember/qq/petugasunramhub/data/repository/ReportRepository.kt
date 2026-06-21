@@ -58,8 +58,8 @@ class ReportRepository {
 
     suspend fun uploadReportMedia(file: File, reportId: Long): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val fileName = file.name
-            val url = "${BuildConfig.SUPABASE_URL}/storage/v1/object/report-media/${reportId}/${fileName}"
+            val fileName = "bukti_report_${reportId}_${System.currentTimeMillis()}_${file.name}"
+            val url = "${BuildConfig.SUPABASE_URL}/storage/v1/object/task-evidence/${fileName}"
             
             val body = file.readBytes().toRequestBody("image/jpeg".toMediaType())
             val request = Request.Builder()
@@ -71,10 +71,12 @@ class ReportRepository {
 
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                val publicUrl = "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/report-media/${reportId}/${fileName}"
+                val publicUrl = "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/task-evidence/${fileName}"
                 Result.success(publicUrl)
             } else {
-                Result.failure(AppException(AppError.UploadError("Upload media gagal dengan status: ${response.code}")))
+                val errorBody = response.body?.string() ?: ""
+                android.util.Log.e("ReportRepository", "Upload media gagal (status: ${response.code}): $errorBody")
+                Result.failure(AppException(AppError.UploadError("Upload media gagal: $errorBody")))
             }
         } catch (e: Throwable) {
             Result.failure(AppException(ErrorMapper.map(e)))
@@ -83,16 +85,18 @@ class ReportRepository {
 
     suspend fun insertReportMedia(reportId: Long, filePath: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            val body = mapOf(
-                "report_id" to reportId.toString(),
-                "file_path" to filePath,
-                "file_type" to "image"
+            val body = pember.qq.petugasunramhub.data.model.ReportMediaRequest(
+                reportId = reportId,
+                filePath = filePath,
+                fileType = "image"
             )
             val response = RetrofitClient.instance.insertReportMedia(body)
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
-                Result.failure(AppException(AppError.UploadError("Gagal menyimpan metadata media: ${response.code()}")))
+                val errorBody = response.errorBody()?.string() ?: ""
+                android.util.Log.e("ReportRepository", "Gagal menyimpan metadata media (status: ${response.code()}): $errorBody")
+                Result.failure(AppException(AppError.UploadError("Gagal menyimpan metadata: $errorBody")))
             }
         } catch (e: Throwable) {
             Result.failure(AppException(ErrorMapper.map(e)))

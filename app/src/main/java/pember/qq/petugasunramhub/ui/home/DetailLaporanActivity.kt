@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import pember.qq.petugasunramhub.databinding.ActivityDetailLaporanBinding
+import pember.qq.petugasunramhub.R
 import java.net.URL
 
 class DetailLaporanActivity : AppCompatActivity() {
@@ -82,11 +83,41 @@ class DetailLaporanActivity : AppCompatActivity() {
                     // Set Description
                     binding.tvDetailDescription.text = report.descriptionText
                     
-                    // Load Attached Evidence Image if available
-                    val imageUrl = report.evidenceImageUrl
-                    if (imageUrl != null) {
+                    // Load Attached Evidence Images if available (up to 3)
+                    val imageUrls = report.evidenceImageUrls
+                    if (imageUrls.isNotEmpty()) {
                         binding.layoutEvidence.visibility = View.VISIBLE
-                        loadImageFromUrl(imageUrl)
+                        
+                        // Load image 1
+                        binding.cardEvidence1.visibility = View.VISIBLE
+                        loadImageFromUrl(imageUrls[0], binding.imgDetailEvidence, binding.cardEvidence1)
+                        binding.cardEvidence1.setOnClickListener {
+                            showFullScreenImage(imageUrls[0])
+                        }
+                        
+                        // Load image 2
+                        if (imageUrls.size > 1) {
+                            binding.cardEvidence2.visibility = View.VISIBLE
+                            loadImageFromUrl(imageUrls[1], binding.imgDetailEvidence2, binding.cardEvidence2)
+                            binding.cardEvidence2.setOnClickListener {
+                                showFullScreenImage(imageUrls[1])
+                            }
+                        } else {
+                            binding.cardEvidence2.visibility = View.GONE
+                            binding.cardEvidence2.setOnClickListener(null)
+                        }
+                        
+                        // Load image 3
+                        if (imageUrls.size > 2) {
+                            binding.cardEvidence3.visibility = View.VISIBLE
+                            loadImageFromUrl(imageUrls[2], binding.imgDetailEvidence3, binding.cardEvidence3)
+                            binding.cardEvidence3.setOnClickListener {
+                                showFullScreenImage(imageUrls[2])
+                            }
+                        } else {
+                            binding.cardEvidence3.visibility = View.GONE
+                            binding.cardEvidence3.setOnClickListener(null)
+                        }
                     } else {
                         binding.layoutEvidence.visibility = View.GONE
                     }
@@ -107,23 +138,62 @@ class DetailLaporanActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadImageFromUrl(imageUrl: String) {
+    private fun loadImageFromUrl(imageUrl: String, imageView: android.widget.ImageView, cardView: View) {
+        android.util.Log.d("DetailLaporan", "Loading image from URL: $imageUrl")
         lifecycleScope.launch {
             val bitmap = withContext(Dispatchers.IO) {
                 try {
-                    val input = URL(imageUrl).openStream()
-                    BitmapFactory.decodeStream(input)
+                    URL(imageUrl).openStream().use { input ->
+                        BitmapFactory.decodeStream(input)
+                    }
                 } catch (e: Exception) {
-                    android.util.Log.e("DetailLaporan", "Gagal memuat gambar: ${e.message}")
+                    android.util.Log.e("DetailLaporan", "Gagal memuat gambar dari URL ($imageUrl): ${e.message}", e)
                     null
                 }
             }
             if (bitmap != null) {
-                binding.imgDetailEvidence.setImageBitmap(bitmap)
+                imageView.setImageBitmap(bitmap)
             } else {
-                Toast.makeText(this@DetailLaporanActivity, "Gagal memuat bukti gambar pendukung", Toast.LENGTH_SHORT).show()
-                binding.layoutEvidence.visibility = View.GONE
+                android.util.Log.w("DetailLaporan", "Bitmap null untuk URL: $imageUrl. Sembunyikan view.")
+                cardView.visibility = View.GONE
             }
         }
+    }
+
+    private fun showFullScreenImage(imageUrl: String) {
+        val dialog = android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        dialog.setContentView(R.layout.dialog_full_screen_image)
+
+        val imgFullScreen = dialog.findViewById<android.widget.ImageView>(R.id.imgFullScreen)
+        val btnClose = dialog.findViewById<android.widget.ImageButton>(R.id.btnCloseFullScreen)
+        val progressBar = dialog.findViewById<android.widget.ProgressBar>(R.id.progressLoading)
+
+        progressBar.visibility = View.VISIBLE
+
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        lifecycleScope.launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                try {
+                    URL(imageUrl).openStream().use { input ->
+                        BitmapFactory.decodeStream(input)
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("DetailLaporan", "Gagal memuat gambar ukuran asli dari URL ($imageUrl): ${e.message}", e)
+                    null
+                }
+            }
+            progressBar.visibility = View.GONE
+            if (bitmap != null) {
+                imgFullScreen.setImageBitmap(bitmap)
+            } else {
+                Toast.makeText(this@DetailLaporanActivity, "Gagal memuat gambar ukuran asli", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
     }
 }
