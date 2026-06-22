@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         } else {
-            // Jika sudah login, langsung arahkan ke CivitasHomeActivity
             startActivity(Intent(this, pember.qq.petugasunramhub.ui.home.CivitasHomeActivity::class.java))
             finish()
             return

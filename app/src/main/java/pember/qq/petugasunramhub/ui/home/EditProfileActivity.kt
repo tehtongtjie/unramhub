@@ -37,7 +37,6 @@ class EditProfileActivity : AppCompatActivity() {
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Apply a grey tint for the default placeholder person icon
         binding.imgProfilePhoto.imageTintList = android.content.res.ColorStateList.valueOf(
             android.graphics.Color.parseColor("#A0AEC0")
         )
@@ -74,10 +73,8 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         binding.btnLogout.setOnClickListener {
-            // 1. Jalankan fungsi logout di ViewModel untuk hapus session lokal
             viewModel.logout()
 
-            // 2. Arahkan user kembali ke LoginActivity secara bersih
             val intent = Intent(this, pember.qq.petugasunramhub.ui.login.LoginActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }

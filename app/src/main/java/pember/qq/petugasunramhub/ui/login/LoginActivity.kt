@@ -56,8 +56,6 @@ class LoginActivity : AppCompatActivity() {
             binding.progressBar.isVisible = state is LoginState.Loading
             binding.btnLogin.isEnabled = state !is LoginState.Loading
 
-            // Perhatikan: Karena Anda sudah pakai TextInputLayout,
-            // kita gunakan setError pada TIL, bukan set text pada TextView error lama
             binding.etNimNip.isEnabled = state !is LoginState.Loading
             binding.etPassword.isEnabled = state !is LoginState.Loading
 
@@ -67,7 +65,6 @@ class LoginActivity : AppCompatActivity() {
                     goToMain()
                 }
                 is LoginState.Error -> {
-                    // Tampilkan error langsung di bawah field password atau field yang relevan
                     binding.tilPassword.error = state.error.message
                 }
                 else -> { }
@@ -86,7 +83,6 @@ class LoginActivity : AppCompatActivity() {
             binding.tilNimNip.error = "NIM/NIP tidak boleh kosong"
             isValid = false
         } else if (username.uppercase().startsWith("OFF") || username.uppercase().startsWith("ADM")) {
-            // Tambahkan validasi prefix di sini
             binding.tilNimNip.error = "Akun Petugas atau Admin tidak dapat login di aplikasi ini"
             isValid = false
         }
@@ -100,7 +96,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goToMain() {
-        // Ubah MainActivity menjadi CivitasHomeActivity
         val intent = Intent(this, pember.qq.petugasunramhub.ui.home.CivitasHomeActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
