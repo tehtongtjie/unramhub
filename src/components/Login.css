@@ -1,88 +1,194 @@
-.login-container {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+/* Reset Dasar Browser */
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-.login-card {
-  width: min(100%, 460px);
-  padding: 32px;
+/* Container Utama dengan Gambar Latar Belakang */
+.login-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  background: rgba(255, 255, 255, 0.94);
+  justify-content: center;
+  align-items: center;
+  /* Menggunakan background gambar fullscreen sinematik */
+  background: url("/bg_unram_login.jpg") center center / cover no-repeat;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
+/* Layer Gelap Penyelamat Kontras (Overlay) */
+.login-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 31, 63, 0.6); /* Biru navy transparan */
+  z-index: 1;
+}
+
+/* Kartu Putih SSO Terstruktur */
+.login-card {
+  position: relative;
+  width: 90%;
+  max-width: 380px;
+  background: #ffffff;
+  border-radius: 4px; /* Sudut kotak tegas khas SSO asli */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  overflow: hidden; /* Memotong tombol bawah agar sudutnya ikut rapi */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Area Form Di Dalam Kartu (Diberi Jarak Internal) */
+.login-body {
+  padding: 24px 24px 16px 24px;
+}
+
+/* Bagian Logo & Judul */
 .login-header {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-.login-mark {
-  width: 52px;
-  height: 52px;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  background: #ffffff;
+.login-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+/* Garis Pembatas Tipis di Bawah Logo */
+.login-divider {
+  width: 100%;
+  border: 0;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0 0 16px 0;
 }
 
 .login-title {
+  font-size: 20px;
+  color: #334155;
+  font-weight: 400;
   margin: 0;
-  font-size: 2rem;
-  letter-spacing: -0.04em;
+  letter-spacing: 0.5px;
+  font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
 }
 
-.login-subtitle {
-  margin: 0;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.error-box {
-  border: 1.5px solid var(--border);
-  background: #ffffff;
-  color: var(--text);
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 0.92rem;
-}
-
-.login-form {
+/* Group Form Model Kotak SSO Unram (Ikon di Kiri) */
+.input-group-sso {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  height: 46px;
+  border: 1px solid #3b82f6; /* Bingkai biru */
+  background: #3b82f6;
+  margin-bottom: 14px;
+  border-radius: 2px;
 }
 
-.login-button {
+/* Modifikasi Khusus Kolom Password (Tanpa Badge Ikon) */
+.input-group-sso.no-badge {
+  border: 1px solid #cbd5e1; /* Bingkai abu-abu biasa */
+  background: #ffffff;
+}
+
+/* Kotak Biru Tempat Ikon User */
+.input-badge {
+  width: 46px;
+  height: 100%;
+  background: #1d4ed8; /* Biru pekat */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* Input Isian Teks */
+.login-input-sso {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #334155;
+  background: #ffffff;
+}
+
+/* Baris Link Bantuan & Lupa Sandi */
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.login-link {
+  color: #3b82f6;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+/* Kotak Notifikasi Eror */
+.error-box {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Tombol Lanjut Menempel Sempurna Tanpa Padding di Bawah */
+.login-button-sso {
   width: 100%;
-  margin-top: 8px;
-  padding: 0.95rem 1.1rem;
+  height: 52px;
+  background: #2196f3; /* Biru Cerah SSO */
+  color: #ffffff;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s ease;
+  border-radius: 0; /* Menghapus lengkungan agar menempel rata */
 }
 
-.login-footer {
-  border-top: 1px solid var(--border-soft);
-  padding-top: 16px;
-  color: var(--text-muted);
-  font-size: 0.85rem;
+.login-button-sso:hover {
+  background: #1e88e5;
 }
 
-.login-footer p {
-  margin: 0;
+.login-button-sso:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
 }
 
-@media (max-width: 480px) {
-  .login-card {
-    padding: 24px;
-  }
-
-  .login-title {
-    font-size: 1.7rem;
-  }
+/* Footer Sistem Informasi Paling Bawah */
+.login-system-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 24px;
+  color: #cbd5e1;
+  font-size: 11px;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
