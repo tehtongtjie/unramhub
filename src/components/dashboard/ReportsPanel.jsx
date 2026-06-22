@@ -181,9 +181,6 @@ export default function ReportsPanel() {
                   <h4>Detail Berkas Aduan</h4>
                   <p className="description-text">{getStatusLabel(selectedReport.status)}</p>
                 </div>
-                <button type="button" className="ui-btn ui-btn--ghost" onClick={handleCloseDetail}>
-                  Tutup
-                </button>
               </div>
 
               <div className="panel-grid-2 detail-grid">
