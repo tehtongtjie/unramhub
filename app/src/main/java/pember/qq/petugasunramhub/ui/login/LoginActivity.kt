@@ -85,6 +85,10 @@ class LoginActivity : AppCompatActivity() {
         if (username.isEmpty()) {
             binding.tilNimNip.error = "NIM/NIP tidak boleh kosong"
             isValid = false
+        } else if (username.uppercase().startsWith("OFF") || username.uppercase().startsWith("ADM")) {
+            // Tambahkan validasi prefix di sini
+            binding.tilNimNip.error = "Akun Petugas atau Admin tidak dapat login di aplikasi ini"
+            isValid = false
         }
 
         if (password.isEmpty()) {

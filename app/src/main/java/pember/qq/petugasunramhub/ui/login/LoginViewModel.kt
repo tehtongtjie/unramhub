@@ -27,6 +27,13 @@ class LoginViewModel : ViewModel() {
             return
         }
 
+        // Validasi tambahan di ViewModel untuk mencegah request ke Supabase
+        val prefix = cleanNimNip.uppercase()
+        if (prefix.startsWith("OFF") || prefix.startsWith("ADM")) {
+            _loginState.value = LoginState.Error(AppError.ValidationError("Akses ditolak: Aplikasi ini hanya untuk Civitas."))
+            return
+        }
+
         _loginState.value = LoginState.Loading
 
         viewModelScope.launch {
