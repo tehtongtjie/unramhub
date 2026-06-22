@@ -16,7 +16,7 @@ function App() {
       {isAuthenticated ? (
         <Dashboard onLogout={handleLogout} />
       ) : (
-        <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+        <Login onLoginSuccess={() => setIsAuthenticated(true)} logoSrc="/logo-login.png" />
       )}
     </div>
   );

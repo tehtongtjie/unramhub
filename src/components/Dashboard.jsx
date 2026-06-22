@@ -84,7 +84,7 @@ export default function Dashboard({ onLogout }) {
 
   return (
     <div className="dashboard-layout">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={onLogout} />
+      <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={onLogout} logoSrc="/logo-sidebar.png" />
 
       <main className="main-content">
         <header className="main-header">

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   FaHome,
   FaFileAlt,
@@ -18,7 +19,9 @@ const MENU_ITEMS = [
   { id: "settings", label: "Pengaturan", icon: <FaCog /> }
 ];
 
-export default function Sidebar({ activePage, setActivePage, onLogout }) {
+export default function Sidebar({ activePage, setActivePage, onLogout, logoSrc = "../public/logo-sidebar.png" }) {
+  const [logoFailed, setLogoFailed] = useState(false);
+
   const handleLogout = () => {
     if (window.confirm("Apakah Anda yakin ingin keluar dari UnramHUB?")) {
       onLogout();
@@ -28,7 +31,11 @@ export default function Sidebar({ activePage, setActivePage, onLogout }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-logo">UH</div>
+        <div className="sidebar-logo" aria-label="Logo aplikasi UnramHUB">
+          {!logoFailed ? (
+            <img className="sidebar-logo-image" src={logoSrc} alt="Logo UnramHUB" onError={() => setLogoFailed(true)} />
+          ) : null}
+        </div>
         <div className="sidebar-brand-text">
           <h2>UnramHUB</h2>
           <p>Admin Panel</p>

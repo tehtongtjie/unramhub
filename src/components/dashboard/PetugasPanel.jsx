@@ -5,6 +5,11 @@ export default function PetugasPanel() {
   const [petugasList, setPetugasList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPetugas, setSelectedPetugas] = useState(null);
+  const [emailDraft, setEmailDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState("");
 
   async function fetchPetugas() {
     try {
@@ -46,6 +51,91 @@ export default function PetugasPanel() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPetugas();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCloseModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleOpenModal = (item) => {
+    const user = item?.users;
+    if (!user) return;
+
+    setSelectedPetugas(item);
+    setEmailDraft(user.email || "");
+    setSaveError("");
+    setSaveSuccess("");
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPetugas(null);
+    setEmailDraft("");
+    setSaving(false);
+    setSaveError("");
+    setSaveSuccess("");
+  };
+
+  const handleSaveEmail = async (e) => {
+    e.preventDefault();
+    if (!selectedPetugas?.users?.id) return;
+
+    const nextEmail = emailDraft.trim();
+    if (!nextEmail) {
+      setSaveError("Email tidak boleh kosong.");
+      return;
+    }
+
+    setSaving(true);
+    setSaveError("");
+    setSaveSuccess("");
+
+    try {
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ email: nextEmail })
+        .eq("id", selectedPetugas.users.id);
+
+      if (updateError) throw updateError;
+
+      setPetugasList((prev) =>
+        prev.map((item) =>
+          item.users?.id === selectedPetugas.users.id
+            ? {
+                ...item,
+                users: {
+                  ...item.users,
+                  email: nextEmail
+                }
+              }
+            : item
+        )
+      );
+
+      setSaveSuccess("Email petugas berhasil diperbarui.");
+      setSelectedPetugas((current) =>
+        current
+          ? {
+              ...current,
+              users: {
+                ...current.users,
+                email: nextEmail
+              }
+            }
+          : current
+      );
+    } catch (err) {
+      console.error("Gagal menyimpan email petugas:", err);
+      setSaveError("Gagal menyimpan perubahan email.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="content-panel dashboard-section">
@@ -95,7 +185,7 @@ export default function PetugasPanel() {
                       <span className="badge">{p.is_active ? "Aktif" : "Nonaktif"}</span>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <button className="ui-btn ui-btn--ghost" onClick={() => alert(`Pengaturan akun untuk ${p.name}`)}>
+                      <button className="ui-btn ui-btn--ghost" onClick={() => handleOpenModal(item)}>
                         Atur Akun
                       </button>
                     </td>
@@ -104,6 +194,79 @@ export default function PetugasPanel() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {selectedPetugas && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div className="panel-header" style={{ marginBottom: 0 }}>
+                <div>
+                  <h4 style={{ margin: 0 }}>Atur Akun Petugas</h4>
+                  <p className="description-text" style={{ marginTop: "4px" }}>
+                    Ubah hanya email untuk akun petugas terpilih.
+                  </p>
+                </div>
+              </div>
+
+              <div className="panel-grid-2 align-start" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                <div className="ui-card" style={{ padding: "14px 16px" }}>
+                  <div className="ui-label">Nama Petugas</div>
+                  <strong>{selectedPetugas.users?.name || "-"}</strong>
+                </div>
+                <div className="ui-card" style={{ padding: "14px 16px" }}>
+                  <div className="ui-label">NIP / ID</div>
+                  <strong>{selectedPetugas.users?.nim_nip || "-"}</strong>
+                </div>
+                <div className="ui-card" style={{ padding: "14px 16px" }}>
+                  <div className="ui-label">Kategori</div>
+                  <strong>{selectedPetugas.categories?.name || "Belum Diatur"}</strong>
+                </div>
+                <div className="ui-card" style={{ padding: "14px 16px" }}>
+                  <div className="ui-label">Status Akun</div>
+                  <strong>{selectedPetugas.users?.is_active ? "Aktif" : "Nonaktif"}</strong>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveEmail} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div>
+                  <label className="ui-label" htmlFor="petugas-email">
+                    Email Petugas
+                  </label>
+                  <input
+                    id="petugas-email"
+                    type="email"
+                    className="ui-input"
+                    value={emailDraft}
+                    onChange={(e) => setEmailDraft(e.target.value)}
+                    placeholder="Masukkan email baru"
+                    required
+                  />
+                </div>
+
+                {saveError && (
+                  <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", color: "#ef4444", padding: "10px 12px", fontSize: "13px", borderRadius: "12px", textAlign: "center" }}>
+                    {saveError}
+                  </div>
+                )}
+                {saveSuccess && (
+                  <div style={{ padding: "12px 14px", background: "#ecfeff", color: "#155e75", borderRadius: "12px", textAlign: "center" }}>
+                    {saveSuccess}
+                  </div>
+                )}
+
+                <div className="toolbar" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "6px" }}>
+                  <button type="button" className="ui-btn ui-btn--ghost" onClick={handleCloseModal} disabled={saving}>
+                    Batal
+                  </button>
+                  <button type="submit" className="ui-btn ui-btn--solid" disabled={saving}>
+                    {saving ? "Menyimpan..." : "Simpan Perubahan"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>
