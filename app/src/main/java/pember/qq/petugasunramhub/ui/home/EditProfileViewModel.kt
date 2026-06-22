@@ -121,4 +121,8 @@ class EditProfileViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
     }
+
+    fun logout() {
+        sessionManager.logout()
+    }
 }

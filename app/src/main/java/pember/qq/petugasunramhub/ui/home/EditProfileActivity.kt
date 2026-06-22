@@ -70,8 +70,19 @@ class EditProfileActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
             }
-
             viewModel.saveProfile(name, email, imageFile)
+        }
+
+        binding.btnLogout.setOnClickListener {
+            // 1. Jalankan fungsi logout di ViewModel untuk hapus session lokal
+            viewModel.logout()
+
+            // 2. Arahkan user kembali ke LoginActivity secara bersih
+            val intent = Intent(this, pember.qq.petugasunramhub.ui.login.LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
         }
     }
 

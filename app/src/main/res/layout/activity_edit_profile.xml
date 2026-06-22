@@ -180,6 +180,20 @@
                 app:backgroundTint="#311068"
                 app:cornerRadius="16dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="16dp"
+                android:text="LOGOUT"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#E53E3E"
+                app:strokeColor="#E53E3E"
+                app:strokeWidth="2dp"
+                app:cornerRadius="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
