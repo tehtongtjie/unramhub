@@ -242,7 +242,8 @@
 .modal-box {
   width: min(100%, 680px);
   max-height: min(88vh, 900px);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: 24px;
@@ -332,7 +333,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow: hidden;
+  min-height: 0;
 }
 
 @media (max-width: 1024px) {

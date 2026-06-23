@@ -444,24 +444,34 @@ export default function ReportsPanel() {
               width: "750px",
               maxWidth: "100%",
               maxHeight: "90vh",
-              overflowY: "auto",
               display: "flex",
               flexDirection: "column",
               boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
-              margin: "0 auto"
+              margin: "0 auto",
+              overflow: "hidden"
             }}
           >
-            <div className="modal-content" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div className="panel-header" style={{ flexShrink: 0, marginBottom: 0 }}>
-                <div>
-                  <h4 style={{ margin: 0 }}>Detail Berkas Aduan</h4>
-                  <p className="description-text" style={{ marginTop: "4px" }}>
-                    Status: <strong>{getStatusLabel(selectedReport.status)}</strong>
-                  </p>
-                </div>
+            <div className="panel-header" style={{ flexShrink: 0, marginBottom: "16px" }}>
+              <div>
+                <h4 style={{ margin: 0 }}>Detail Berkas Aduan</h4>
+                <p className="description-text" style={{ marginTop: "4px" }}>
+                  Status: <strong>{getStatusLabel(selectedReport.status)}</strong>
+                </p>
               </div>
+            </div>
 
-              <div className="modal-body" style={{ flex: 1, paddingRight: "8px" }}>
+            <div
+              className="modal-scroll-shell"
+              style={{
+                flex: "1 1 auto",
+                minHeight: 0,
+                overflowY: "auto",
+                overflowX: "hidden",
+                paddingRight: "8px",
+                scrollbarGutter: "stable"
+              }}
+            >
+              <div className="modal-content" style={{ display: "flex", flexDirection: "column", gap: "16px", minHeight: 0 }}>
                 <div
                   className="panel-grid-2 detail-grid"
                   style={{ marginBottom: "20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}
@@ -641,12 +651,12 @@ export default function ReportsPanel() {
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="toolbar" style={{ display: "flex", justifyContent: "flex-end", marginTop: 0, borderTop: "1px solid #f1f5f9", paddingTop: "16px", flexShrink: 0 }}>
-                <button type="button" className="ui-btn ui-btn--ghost" onClick={handleCloseDetail} style={{ padding: "8px 20px", borderRadius: "6px", cursor: "pointer" }}>
-                  Tutup Dokumen
-                </button>
-              </div>
+            <div className="toolbar" style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px", borderTop: "1px solid #f1f5f9", paddingTop: "16px", flexShrink: 0 }}>
+              <button type="button" className="ui-btn ui-btn--ghost" onClick={handleCloseDetail} style={{ padding: "8px 20px", borderRadius: "6px", cursor: "pointer" }}>
+                Tutup Dokumen
+              </button>
             </div>
           </div>
         </div>
