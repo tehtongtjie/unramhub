@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import pember.qq.petugasunramhub.databinding.FragmentProfilBinding
+import pember.qq.petugasunramhub.databinding.PetugasFragmentProfilBinding
 import pember.qq.petugasunramhub.ui.login.LoginActivity
 import pember.qq.petugasunramhub.utils.SessionManager
 
 class ProfilFragment : Fragment() {
 
-    private var _binding: FragmentProfilBinding? = null
+    private var _binding: PetugasFragmentProfilBinding? = null
     private val binding get() = _binding!!
 
     private val sessionManager by lazy { SessionManager(requireContext()) }
@@ -24,7 +24,7 @@ class ProfilFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentProfilBinding.inflate(inflater, container, false)
+        _binding = PetugasFragmentProfilBinding.inflate(inflater, container, false)
         return binding.root
     }
 

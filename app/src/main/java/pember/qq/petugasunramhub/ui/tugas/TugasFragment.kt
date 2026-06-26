@@ -9,15 +9,15 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import pember.qq.petugasunramhub.databinding.FragmentTugasBinding
-import pember.qq.petugasunramhub.databinding.ItemReportBinding
+import pember.qq.petugasunramhub.databinding.PetugasFragmentTugasBinding
+import pember.qq.petugasunramhub.databinding.PetugasItemReportBinding
 import pember.qq.petugasunramhub.data.network.RetrofitClient
 import pember.qq.petugasunramhub.data.model.Report
 import pember.qq.petugasunramhub.utils.SessionManager
 
 class TugasFragment : Fragment() {
 
-    private var _binding: FragmentTugasBinding? = null
+    private var _binding: PetugasFragmentTugasBinding? = null
     private val binding get() = _binding!!
 
     private val sessionManager by lazy { SessionManager(requireContext()) }
@@ -33,7 +33,7 @@ class TugasFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentTugasBinding.inflate(inflater, container, false)
+        _binding = PetugasFragmentTugasBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -126,7 +126,7 @@ class TugasFragment : Fragment() {
 
         // Render data tugas ke dalam view kontainer secara dinamis
         filteredList.forEach { report ->
-            val itemBinding = ItemReportBinding.inflate(
+            val itemBinding = PetugasItemReportBinding.inflate(
                 layoutInflater,
                 binding.reportContainer,
                 false

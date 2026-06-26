@@ -10,14 +10,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import pember.qq.petugasunramhub.databinding.FragmentBerandaBinding
+import pember.qq.petugasunramhub.databinding.PetugasFragmentBerandaBinding
 import pember.qq.petugasunramhub.data.network.RetrofitClient
 import pember.qq.petugasunramhub.utils.SessionManager
 import java.util.Calendar
 
 class BerandaFragment : Fragment() {
 
-    private var _binding: FragmentBerandaBinding? = null
+    private var _binding: PetugasFragmentBerandaBinding? = null
     private val binding get() = _binding!!
 
     private val sessionManager by lazy { SessionManager(requireContext()) }
@@ -27,7 +27,7 @@ class BerandaFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentBerandaBinding.inflate(inflater, container, false)
+        _binding = PetugasFragmentBerandaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
